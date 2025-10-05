@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function AcceptInvite({ params }: { params: { code: string } }) {
@@ -7,7 +7,7 @@ export default function AcceptInvite({ params }: { params: { code: string } }) {
     const [status, setStatus] = useState<'idle' | 'ok' | 'error'>('idle')
     const [message, setMessage] = useState('')
 
-    const redeem = async () => {
+    const redeem = useCallback(async () => {
         const r = await fetch('/api/invites/accept', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
@@ -20,7 +20,7 @@ export default function AcceptInvite({ params }: { params: { code: string } }) {
             const j = await r.json().catch(() => ({}))
             setStatus('error'); setMessage(j.error || 'Failed to redeem')
         }
-    }
+    }, [params.code, router])
 
     useEffect(() => { redeem() }, [redeem])
 

@@ -3,117 +3,120 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import GlassCard from "@/components/ui/GlassCard";
 import {
-  DollarSign,
   CreditCard,
+  DollarSign,
   Clock,
   CheckCircle,
   XCircle,
   AlertTriangle,
-  TrendingUp,
-  TrendingDown,
+  RefreshCw,
   Eye,
   Download,
   Search,
+  Send,
   User,
-  Building,
-  Wallet,
   ArrowUpRight,
   ArrowDownLeft,
-  RefreshCw
+  Plus
 } from "lucide-react";
 
-type Deposit = {
+type Payment = {
   id: string;
   user_id: string;
   user_name: string;
   amount: number;
   currency: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded';
-  method: 'card' | 'bank_transfer' | 'crypto' | 'wire';
-  transaction_id?: string;
-  stripe_payment_intent_id?: string;
+  type: 'payout' | 'refund' | 'fee' | 'commission';
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  method: 'bank_transfer' | 'paypal' | 'stripe' | 'crypto';
+  reference_id?: string;
+  booking_id?: string;
   created_at: string;
   processed_at?: string;
+  description?: string;
   fee_amount?: number;
   net_amount?: number;
-  description?: string;
-  metadata?: Record<string, unknown>;
 };
 
-export default function DepositsPage() {
-  const [deposits, setDeposits] = useState<Deposit[]>([]);
+export default function PaymentsPage() {
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [methodFilter, setMethodFilter] = useState("all");
-  const [dateRange, setDateRange] = useState("7d");
 
   useEffect(() => {
-    fetchDeposits();
+    fetchPayments();
   }, []);
 
-  const fetchDeposits = async () => {
+  const fetchPayments = async () => {
     try {
       // Mock data for now - replace with actual Supabase query
-      const mockDeposits: Deposit[] = [
+      const mockPayments: Payment[] = [
         {
           id: "1",
           user_id: "user_1",
           user_name: "Sarah Johnson",
-          amount: 2500.00,
+          amount: 1875.00,
           currency: "USD",
+          type: "payout",
           status: "completed",
-          method: "card",
-          transaction_id: "txn_1234567890",
-          stripe_payment_intent_id: "pi_1234567890",
-          created_at: "2025-10-05T10:30:00Z",
-          processed_at: "2025-10-05T10:32:00Z",
-          fee_amount: 75.00,
-          net_amount: 2425.00,
-          description: "Security deposit for luxury suite booking"
+          method: "bank_transfer",
+          reference_id: "payout_abc123",
+          booking_id: "booking_456",
+          created_at: "2025-10-05T09:00:00Z",
+          processed_at: "2025-10-05T09:15:00Z",
+          description: "Creator payout for photoshoot session",
+          fee_amount: 56.25,
+          net_amount: 1818.75
         },
         {
           id: "2",
           user_id: "user_2",
           user_name: "Michael Chen",
-          amount: 1200.00,
+          amount: 500.00,
           currency: "USD",
+          type: "refund",
           status: "pending",
-          method: "bank_transfer",
-          created_at: "2025-10-05T09:15:00Z",
-          description: "Initial deposit for photoshoot session"
+          method: "stripe",
+          reference_id: "ref_xyz789",
+          booking_id: "booking_789",
+          created_at: "2025-10-05T10:30:00Z",
+          description: "Booking cancellation refund"
         },
         {
           id: "3",
           user_id: "user_3",
           user_name: "Emma Rodriguez",
-          amount: 5000.00,
+          amount: 750.00,
           currency: "USD",
+          type: "commission",
           status: "processing",
-          method: "wire",
-          transaction_id: "wire_789123456",
-          created_at: "2025-10-04T16:45:00Z",
-          fee_amount: 25.00,
-          net_amount: 4975.00,
-          description: "VIP membership deposit"
+          method: "paypal",
+          reference_id: "comm_def456",
+          created_at: "2025-10-04T15:20:00Z",
+          description: "Platform commission payment",
+          fee_amount: 22.50,
+          net_amount: 727.50
         },
         {
           id: "4",
           user_id: "user_4",
           user_name: "David Park",
-          amount: 800.00,
+          amount: 125.00,
           currency: "USD",
+          type: "fee",
           status: "failed",
-          method: "card",
-          created_at: "2025-10-04T14:20:00Z",
-          description: "Room deposit - insufficient funds"
+          method: "bank_transfer",
+          created_at: "2025-10-04T12:45:00Z",
+          description: "Service fee payment - insufficient funds"
         }
       ];
 
-      setDeposits(mockDeposits);
+      setPayments(mockPayments);
     } catch (error) {
-      console.error('Error fetching deposits:', error);
-      toast.error('Failed to load deposits');
+      console.error('Error fetching payments:', error);
+      toast.error('Failed to load payments');
     } finally {
       setLoading(false);
     }
@@ -129,23 +132,38 @@ export default function DepositsPage() {
         return 'text-yellow-400 bg-yellow-400/20 border-yellow-400/50';
       case 'failed':
         return 'text-red-400 bg-red-400/20 border-red-400/50';
-      case 'refunded':
-        return 'text-purple-400 bg-purple-400/20 border-purple-400/50';
+      case 'cancelled':
+        return 'text-gray-400 bg-gray-400/20 border-gray-400/50';
       default:
         return 'text-white/60 bg-white/10 border-white/30';
     }
   };
 
-  const getMethodIcon = (method: string) => {
-    switch (method) {
-      case 'card':
-        return <CreditCard className="w-4 h-4" />;
-      case 'bank_transfer':
-        return <Building className="w-4 h-4" />;
-      case 'crypto':
-        return <Wallet className="w-4 h-4" />;
-      case 'wire':
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'payout':
+        return 'text-green-400 bg-green-400/20';
+      case 'refund':
+        return 'text-blue-400 bg-blue-400/20';
+      case 'commission':
+        return 'text-purple-400 bg-purple-400/20';
+      case 'fee':
+        return 'text-yellow-400 bg-yellow-400/20';
+      default:
+        return 'text-white/60 bg-white/10';
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'payout':
         return <ArrowUpRight className="w-4 h-4" />;
+      case 'refund':
+        return <ArrowDownLeft className="w-4 h-4" />;
+      case 'commission':
+        return <DollarSign className="w-4 h-4" />;
+      case 'fee':
+        return <CreditCard className="w-4 h-4" />;
       default:
         return <DollarSign className="w-4 h-4" />;
     }
@@ -161,30 +179,31 @@ export default function DepositsPage() {
         return <Clock className="w-4 h-4 text-yellow-400" />;
       case 'failed':
         return <XCircle className="w-4 h-4 text-red-400" />;
-      case 'refunded':
-        return <ArrowDownLeft className="w-4 h-4 text-purple-400" />;
+      case 'cancelled':
+        return <XCircle className="w-4 h-4 text-gray-400" />;
       default:
         return <AlertTriangle className="w-4 h-4 text-white/60" />;
     }
   };
 
-  const filteredDeposits = deposits.filter(deposit => {
-    const matchesSearch = deposit.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      deposit.transaction_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      deposit.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || deposit.status === statusFilter;
-    const matchesMethod = methodFilter === 'all' || deposit.method === methodFilter;
-    return matchesSearch && matchesStatus && matchesMethod;
+  const filteredPayments = payments.filter(payment => {
+    const matchesSearch = payment.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      payment.reference_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      payment.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = typeFilter === 'all' || payment.type === typeFilter;
+    const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
+    return matchesSearch && matchesType && matchesStatus;
   });
 
   const stats = {
-    total_amount: deposits.reduce((sum, d) => sum + (d.status === 'completed' ? d.amount : 0), 0),
-    total_count: deposits.length,
-    pending: deposits.filter(d => d.status === 'pending').length,
-    processing: deposits.filter(d => d.status === 'processing').length,
-    completed: deposits.filter(d => d.status === 'completed').length,
-    failed: deposits.filter(d => d.status === 'failed').length,
-    avg_amount: deposits.length > 0 ? Math.round(deposits.reduce((sum, d) => sum + d.amount, 0) / deposits.length) : 0
+    total_amount: payments.reduce((sum, p) => sum + (p.status === 'completed' ? p.amount : 0), 0),
+    total_count: payments.length,
+    pending: payments.filter(p => p.status === 'pending').length,
+    processing: payments.filter(p => p.status === 'processing').length,
+    completed: payments.filter(p => p.status === 'completed').length,
+    failed: payments.filter(p => p.status === 'failed').length,
+    payouts: payments.filter(p => p.type === 'payout' && p.status === 'completed').reduce((sum, p) => sum + p.amount, 0),
+    refunds: payments.filter(p => p.type === 'refund' && p.status === 'completed').reduce((sum, p) => sum + p.amount, 0)
   };
 
   if (loading) {
@@ -201,39 +220,48 @@ export default function DepositsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
-            Deposits Management
+            Payments & Payouts
           </h1>
-          <p className="text-white/60 mt-2">Track and manage incoming deposits and payments</p>
+          <p className="text-white/60 mt-2">Manage outgoing payments, refunds, and payouts</p>
         </div>
         <div className="flex items-center gap-2">
           <button className="liquid-btn px-4 py-2 rounded-lg flex items-center gap-2">
-            <Download className="w-4 h-4" />
-            Export
+            <Plus className="w-4 h-4" />
+            New Payment
           </button>
           <button className="frosted-input px-4 py-2 rounded-lg flex items-center gap-2">
-            <RefreshCw className="w-4 h-4" />
-            Refresh
+            <Download className="w-4 h-4" />
+            Export
           </button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         <div className="glass rounded-lg p-4">
           <div className="flex items-center gap-3">
             <DollarSign className="w-5 h-5 text-green-400" />
             <div>
               <div className="text-2xl font-bold">${stats.total_amount.toLocaleString()}</div>
-              <div className="text-sm text-white/60">Total Received</div>
+              <div className="text-sm text-white/60">Total Paid</div>
             </div>
           </div>
         </div>
         <div className="glass rounded-lg p-4">
           <div className="flex items-center gap-3">
-            <TrendingUp className="w-5 h-5 text-blue-400" />
+            <ArrowUpRight className="w-5 h-5 text-green-400" />
             <div>
-              <div className="text-2xl font-bold">{stats.total_count}</div>
-              <div className="text-sm text-white/60">Total Deposits</div>
+              <div className="text-2xl font-bold">${stats.payouts.toLocaleString()}</div>
+              <div className="text-sm text-white/60">Payouts</div>
+            </div>
+          </div>
+        </div>
+        <div className="glass rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <ArrowDownLeft className="w-5 h-5 text-blue-400" />
+            <div>
+              <div className="text-2xl font-bold">${stats.refunds.toLocaleString()}</div>
+              <div className="text-sm text-white/60">Refunds</div>
             </div>
           </div>
         </div>
@@ -264,15 +292,6 @@ export default function DepositsPage() {
             </div>
           </div>
         </div>
-        <div className="glass rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <TrendingDown className="w-5 h-5 text-purple-400" />
-            <div>
-              <div className="text-2xl font-bold">${stats.avg_amount}</div>
-              <div className="text-sm text-white/60">Avg Amount</div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Filters */}
@@ -283,10 +302,21 @@ export default function DepositsPage() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search deposits..."
+            placeholder="Search payments..."
             className="frosted-input w-full pl-10"
           />
         </div>
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+          className="frosted-input min-w-[150px]"
+        >
+          <option value="all">All Types</option>
+          <option value="payout">Payouts</option>
+          <option value="refund">Refunds</option>
+          <option value="commission">Commission</option>
+          <option value="fee">Fees</option>
+        </select>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -297,101 +327,78 @@ export default function DepositsPage() {
           <option value="processing">Processing</option>
           <option value="completed">Completed</option>
           <option value="failed">Failed</option>
-          <option value="refunded">Refunded</option>
-        </select>
-        <select
-          value={methodFilter}
-          onChange={(e) => setMethodFilter(e.target.value)}
-          className="frosted-input min-w-[150px]"
-        >
-          <option value="all">All Methods</option>
-          <option value="card">Credit Card</option>
-          <option value="bank_transfer">Bank Transfer</option>
-          <option value="crypto">Cryptocurrency</option>
-          <option value="wire">Wire Transfer</option>
-        </select>
-        <select
-          value={dateRange}
-          onChange={(e) => setDateRange(e.target.value)}
-          className="frosted-input min-w-[150px]"
-        >
-          <option value="1d">Last 24 Hours</option>
-          <option value="7d">Last 7 Days</option>
-          <option value="30d">Last 30 Days</option>
-          <option value="90d">Last 90 Days</option>
+          <option value="cancelled">Cancelled</option>
         </select>
       </div>
 
-      {/* Deposits Table */}
+      {/* Payments Table */}
       <GlassCard>
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <DollarSign className="w-5 h-5" />
-          Recent Deposits ({filteredDeposits.length})
+          <Send className="w-5 h-5" />
+          Recent Payments ({filteredPayments.length})
         </h2>
-        {filteredDeposits.length === 0 ? (
+        {filteredPayments.length === 0 ? (
           <div className="text-center py-12">
-            <Wallet className="w-12 h-12 mx-auto mb-4 text-white/30" />
-            <p className="text-white/60">No deposits found matching your criteria</p>
+            <CreditCard className="w-12 h-12 mx-auto mb-4 text-white/30" />
+            <p className="text-white/60">No payments found matching your criteria</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left py-3 px-2 font-medium text-white/60">User</th>
+                  <th className="text-left py-3 px-2 font-medium text-white/60">Recipient</th>
                   <th className="text-left py-3 px-2 font-medium text-white/60">Amount</th>
+                  <th className="text-left py-3 px-2 font-medium text-white/60">Type</th>
                   <th className="text-left py-3 px-2 font-medium text-white/60">Method</th>
                   <th className="text-left py-3 px-2 font-medium text-white/60">Status</th>
                   <th className="text-left py-3 px-2 font-medium text-white/60">Date</th>
-                  <th className="text-left py-3 px-2 font-medium text-white/60">Transaction</th>
                   <th className="text-right py-3 px-2 font-medium text-white/60">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
-                {filteredDeposits.map((deposit) => (
-                  <tr key={deposit.id} className="hover:bg-white/5 transition-colors">
+                {filteredPayments.map((payment) => (
+                  <tr key={payment.id} className="hover:bg-white/5 transition-colors">
                     <td className="py-4 px-2">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                           <User className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <div className="font-medium">{deposit.user_name}</div>
-                          <div className="text-sm text-white/60">{deposit.user_id.slice(0, 8)}...</div>
+                          <div className="font-medium">{payment.user_name}</div>
+                          <div className="text-sm text-white/60">{payment.user_id.slice(0, 8)}...</div>
                         </div>
                       </div>
                     </td>
                     <td className="py-4 px-2">
-                      <div className="font-semibold text-lg">${deposit.amount.toLocaleString()}</div>
-                      {deposit.fee_amount && (
+                      <div className="font-semibold text-lg">${payment.amount.toLocaleString()}</div>
+                      {payment.fee_amount && (
                         <div className="text-sm text-white/60">
-                          Fee: ${deposit.fee_amount} • Net: ${deposit.net_amount}
+                          Fee: ${payment.fee_amount} • Net: ${payment.net_amount}
                         </div>
                       )}
                     </td>
                     <td className="py-4 px-2">
-                      <div className="flex items-center gap-2">
-                        {getMethodIcon(deposit.method)}
-                        <span className="capitalize">{deposit.method.replace('_', ' ')}</span>
+                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${getTypeColor(payment.type)}`}>
+                        {getTypeIcon(payment.type)}
+                        <span className="capitalize">{payment.type}</span>
                       </div>
                     </td>
                     <td className="py-4 px-2">
+                      <span className="capitalize">{payment.method.replace('_', ' ')}</span>
+                    </td>
+                    <td className="py-4 px-2">
                       <div className="flex items-center gap-2">
-                        {getStatusIcon(deposit.status)}
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(deposit.status)}`}>
-                          {deposit.status.charAt(0).toUpperCase() + deposit.status.slice(1)}
+                        {getStatusIcon(payment.status)}
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(payment.status)}`}>
+                          {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
                         </span>
                       </div>
                     </td>
                     <td className="py-4 px-2">
                       <div className="text-sm">
-                        <div>{new Date(deposit.created_at).toLocaleDateString()}</div>
-                        <div className="text-white/60">{new Date(deposit.created_at).toLocaleTimeString()}</div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-2">
-                      <div className="text-sm font-mono">
-                        {deposit.transaction_id || 'Pending'}
+                        <div>{new Date(payment.created_at).toLocaleDateString()}</div>
+                        <div className="text-white/60">{new Date(payment.created_at).toLocaleTimeString()}</div>
                       </div>
                     </td>
                     <td className="py-4 px-2 text-right">

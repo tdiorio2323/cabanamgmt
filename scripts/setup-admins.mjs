@@ -33,7 +33,7 @@ async function setup() {
 
   // 1. Create admin_emails table
   console.log('1️⃣  Creating admin_emails table...');
-  const { error: tableError } = await supabase.rpc('exec_sql', {
+  await supabase.rpc('exec_sql', {
     sql: `
       create table if not exists public.admin_emails(
         email text primary key,
