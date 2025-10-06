@@ -30,6 +30,7 @@ type Event = {
 export default function CalendarPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [view, setView] = useState<'month' | 'week' | 'day'>('month');
   const [loading, setLoading] = useState(true);
 

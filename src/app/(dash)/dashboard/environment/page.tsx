@@ -92,6 +92,7 @@ export default function EnvironmentPage() {
   const [selectedEnvironment, setSelectedEnvironment] = useState<'all' | 'production' | 'staging' | 'development'>('production');
   const [searchTerm, setSearchTerm] = useState("");
   const [showSensitive, setShowSensitive] = useState(false);
+  const [_editingVar, setEditingVar] = useState<string | null>(null);
 
   useEffect(() => {
     fetchEnvironmentData();
