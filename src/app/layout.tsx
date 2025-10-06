@@ -12,7 +12,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body
         className="min-h-screen bg-bg text-ink antialiased"
         style={{
-          backgroundImage: "url('/lovable-uploads/td-studios-black-marble.png')",
+          backgroundImage: "url('/td-studios-black-marble.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed",
