@@ -17,6 +17,8 @@
     "test:smoke": "playwright test tests/smoke.generated.spec.ts",
     "test:all": "playwright test",
     "test:ui": "playwright test --ui",
+    "smoke": "npm run test:smoke",
+    "verify:all": "npm run audit:routes && npm run test:smoke",
     "test:setup": "echo '\n🎭 Playwright Testing Setup Complete!\n\nNext steps:\n1. Start dev server: pnpm run dev\n2. Update .env.test.local with your test credentials\n3. Run tests: pnpm run test:auth\n\nSee docs/TESTING.md for full guide.\n'",
     "db:types": "supabase gen types typescript --project-id dotfloiygvhsujlwzqgv --schema public > src/types/supabase.ts",
     "db:types:remote": "supabase gen types typescript --project-id dotfloiygvhsujlwzqgv --schema public > src/types/supabase.ts",

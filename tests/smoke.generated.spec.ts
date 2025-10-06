@@ -1,15 +1,17 @@
 import { test, expect } from "@playwright/test";
 
-const publicRoutes = [
+const routes = [
   "/",
   "/health",
+  "/invite/[code]",
+  "/vip/[code]",
   "/confirmation",
   "/contracts",
   "/debug",
   "/deposit",
   "/deposits",
   "/intake",
-  "/interview", 
+  "/interview",
   "/learn",
   "/login",
   "/reset-password",
@@ -18,31 +20,15 @@ const publicRoutes = [
   "/vetting"
 ];
 
-const dynamicRoutes = [
-  { template: "/invite/[code]", example: "/invite/test123" },
-  { template: "/vip/[code]", example: "/vip/test123" }
-];
-
-// Test public routes
-for (const route of publicRoutes) {
+for (const route of routes) {
   test(`smoke: ${route}`, async ({ page }) => {
-    await page.goto(route);
-    // Basic smoke test - page loads without error
-    await expect(page).not.toHaveTitle(/Error/);
-    // Most pages should have some content or redirect appropriately
-    const body = page.locator('body');
-    await expect(body).toBeVisible();
-  });
-}
-
-// Test dynamic routes with example parameters
-for (const { template, example } of dynamicRoutes) {
-  test(`smoke: ${template} (via ${example})`, async ({ page }) => {
-    await page.goto(example);
-    // Allow redirects for invalid codes
-    await page.waitForLoadState('networkidle');
-    await expect(page).not.toHaveTitle(/Error/);
-    const body = page.locator('body');
-    await expect(body).toBeVisible();
+    const response = await page.goto(route);
+    
+    // Basic smoke test - page loads successfully (no 404/500 errors)
+    expect(response?.status()).toBeLessThan(400);
+    
+    // Page should have some content (not completely empty)
+    const bodyText = await page.locator('body').textContent();
+    expect(bodyText?.length || 0).toBeGreaterThan(0);
   });
 }
