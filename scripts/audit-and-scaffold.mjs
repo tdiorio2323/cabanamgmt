@@ -2,22 +2,22 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 
-const spec = JSON.parse(fs.readFileSync("docs/route-spec.json","utf8"));
-const appRoots = ["app","src/app"].filter(p=>fs.existsSync(p));
-if(!appRoots.length) { console.error("No app/ or src/app/ found"); process.exit(1); }
+const spec = JSON.parse(fs.readFileSync("docs/route-spec.json", "utf8"));
+const appRoots = ["app", "src/app"].filter(p => fs.existsSync(p));
+if (!appRoots.length) { console.error("No app/ or src/app/ found"); process.exit(1); }
 const appRoot = appRoots[0];
 
 const toFs = r => r
-  .replace(/^\/$/,"")
-  .replace(/^\//,"")
+  .replace(/^\/$/, "")
+  .replace(/^\//, "")
   .replace(/\[([^\]]+)\]/g, "[$1]"); // keep dynamic segments
 
-function hasPage(route){
+function hasPage(route) {
   const fsPath = toFs(route);
   // Check normal path
   const normalPage = path.join(appRoot, fsPath, "page.tsx");
   if (fs.existsSync(normalPage)) return true;
-  
+
   // Check in route groups - scan for any (group) folders
   try {
     const dirs = fs.readdirSync(appRoot, { withFileTypes: true });
@@ -30,18 +30,18 @@ function hasPage(route){
   } catch {
     // ignore read errors
   }
-  
+
   return false;
 }
 
 const missing = spec.filter(r => !hasPage(r));
 
 // scaffold minimal glassy stub
-for (const r of missing){
+for (const r of missing) {
   const dir = path.join(appRoot, toFs(r));
   fs.mkdirSync(dir, { recursive: true });
   const file = path.join(dir, "page.tsx");
-  const name = r === "/" ? "Home" : r.split("/").filter(Boolean).map(s=>s.replace(/\[|\]/g,"")).map(s=>s[0].toUpperCase()+s.slice(1)).join(" • ");
+  const name = r === "/" ? "Home" : r.split("/").filter(Boolean).map(s => s.replace(/\[|\]/g, "")).map(s => s[0].toUpperCase() + s.slice(1)).join(" • ");
   fs.writeFileSync(file, `export default function Page(){return (
   <div className="min-h-[60vh] p-6">
     <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6">
@@ -74,4 +74,4 @@ console.log("  Existing pages:", spec.length - missing.length);
 console.log("  Missing created:", missing.length);
 
 // optional: quick type/lint/build to catch breakages
-try { execSync("npm run build:full", { stdio: "inherit" }); } catch {}
+try { execSync("npm run build:full", { stdio: "inherit" }); } catch { }

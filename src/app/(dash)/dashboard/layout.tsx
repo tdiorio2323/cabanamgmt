@@ -11,17 +11,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     let mounted = true;
-    
+
     async function checkAuth() {
       try {
         const s = supabaseBrowser();
-        
+
         // Set up auth state listener
         const { data: { subscription } } = s.auth.onAuthStateChange(async (event, session) => {
           if (!mounted) return;
-          
+
           console.log('Auth state change:', event, !!session);
-          
+
           if (event === 'SIGNED_OUT' || !session) {
             setAuthorized(false);
             setLoading(false);
@@ -52,9 +52,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           setAuthorized(false);
           router.push('/login');
         }
-        
+
         setLoading(false);
-        
+
         // Cleanup function
         return () => {
           subscription.unsubscribe();
@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     checkAuth();
-    
+
     return () => {
       mounted = false;
     };

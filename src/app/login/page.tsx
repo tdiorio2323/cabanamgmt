@@ -32,10 +32,10 @@ export default function Page() {
       } else if (data.session) {
         console.log('Login successful, session created:', !!data.session);
         toast.success("Welcome back!");
-        
+
         // Give a small delay to ensure session is properly set
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         router.push("/dashboard");
         router.refresh();
       } else {
