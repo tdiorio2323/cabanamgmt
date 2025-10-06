@@ -1,0 +1,19 @@
+[
+  "/",
+  "/health", 
+  "/invite/[code]",
+  "/vip/[code]",
+  "/confirmation",
+  "/contracts",
+  "/debug",
+  "/deposit",
+  "/deposits", 
+  "/intake",
+  "/interview",
+  "/learn",
+  "/login",
+  "/reset-password",
+  "/screening",
+  "/verify",
+  "/vetting"
+]

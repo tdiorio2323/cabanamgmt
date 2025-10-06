@@ -5,7 +5,7 @@ dotenv.config({ path: '.env.test.local' });
 export default defineConfig({
   testDir: './tests',
   use: {
-    baseURL: process.env.APP_URL || 'http://localhost:3000',
+    baseURL: process.env.APP_URL || 'http://localhost:3001',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
