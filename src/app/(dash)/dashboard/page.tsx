@@ -1,8 +1,13 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import GlassCard from "@/components/ui/GlassCard";
-import { TrendingUp, Users, Calendar, CreditCard, CheckCircle } from "lucide-react";
+import { getSession } from "@/lib/getSession";
+import { isAdminEmail } from "@/lib/isAdminEmail";
+import { TrendingUp, Users, Calendar, CreditCard, CheckCircle, Shield } from "lucide-react";
 
 export default async function OverviewPage() {
+  const session = await getSession();
+  const isAdmin = isAdminEmail(session?.user?.email);
+
   const [
     { count: codesCount },
     { count: _redemptionsCount },
@@ -31,9 +36,20 @@ export default async function OverviewPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
-          Dashboard Overview
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
+            Dashboard Overview
+          </h1>
+          {isAdmin && (
+            <div
+              data-testid="admin-only"
+              className="flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/30"
+            >
+              <Shield className="w-4 h-4" />
+              <span className="text-sm font-medium">Admin</span>
+            </div>
+          )}
+        </div>
         <p className="text-white/60 mt-2">Welcome back to Cabana Management</p>
       </div>
 

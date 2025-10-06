@@ -11,16 +11,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     async function checkAuth() {
-      const s = supabaseBrowser();
-      const { data: { session } } = await s.auth.getSession();
+      try {
+        const s = supabaseBrowser();
+        const { data: { session }, error } = await s.auth.getSession();
 
-      if (!session) {
+        if (error) {
+          console.error('Auth session error:', error);
+          router.push('/login');
+          return;
+        }
+
+        if (!session) {
+          router.push('/login');
+          return;
+        }
+
+        setAuthorized(true);
+      } catch (error) {
+        console.error('Auth check failed:', error);
         router.push('/login');
-        return;
+      } finally {
+        setLoading(false);
       }
-
-      setAuthorized(true);
-      setLoading(false);
     }
 
     checkAuth();

@@ -968,7 +968,7 @@ export default function ActivityMonitorPage() {
           <GlassCard>
             <h3 className="text-lg font-semibold mb-4">Geographic Distribution</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {stats.location_breakdown.slice(0, 6).map((location, _index) => (
+              {stats.location_breakdown.slice(0, 6).map((location) => (
                 <div key={`${location.country}-${location.city}`} className="p-3 bg-white/5 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">

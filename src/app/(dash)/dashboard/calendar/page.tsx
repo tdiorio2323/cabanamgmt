@@ -31,7 +31,6 @@ export default function CalendarPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'month' | 'week' | 'day'>('month');
-  const [_selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
 
   const fetchEvents = useCallback(async () => {

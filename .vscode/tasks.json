@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "supabase:types",
+      "type": "shell",
+      "command": "npm run db:types",
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "supabase:watch",
+      "type": "shell",
+      "command": "npm run db:watch",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

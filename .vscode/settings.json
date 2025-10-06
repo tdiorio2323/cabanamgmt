@@ -29,6 +29,20 @@
       "matchCommandLine": true
     }
   },
+  // Supabase MCP server for database access in Copilot Chat
+  "github.copilot.chat.mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-postgres",
+        "--connection",
+        "postgresql://postgres:mynewcabana@db.dotfloiygvhsujlwzqgv.supabase.co:5432/postgres"
+      ],
+      "env": {
+        "PGSSLMODE": "require"
+      }
+    }
+  },
   // Reduce prompts for chat-applied edits in this trusted repo
   "chat.workspaceEdits.allowEditsInTrustedWorkspace": "all",
   "chat.openFilePermissions": "allowAll",

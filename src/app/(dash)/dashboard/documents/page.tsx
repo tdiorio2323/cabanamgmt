@@ -71,7 +71,6 @@ export default function DocumentsPage() {
   const [accessFilter, setAccessFilter] = useState("all");
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [_selectedDocuments, _setSelectedDocuments] = useState<string[]>([]);
 
   useEffect(() => {
     fetchDocuments();
@@ -240,7 +239,7 @@ export default function DocumentsPage() {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const getFileTypeIcon = (type: string, _file_type: string) => {
+  const getFileTypeIcon = (type: string) => {
     switch (type) {
       case 'image':
         return <FileImage className="w-5 h-5 text-green-400" />;
@@ -520,7 +519,7 @@ export default function DocumentsPage() {
             {filteredDocuments.map(doc => (
               <div key={doc.id} className="p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-all group">
                 <div className="flex items-start justify-between mb-3">
-                  {getFileTypeIcon(doc.type, doc.file_type)}
+                  {getFileTypeIcon(doc.type)}
                   <div className="flex gap-1">
                     {doc.encryption_status === 'encrypted' && (
                       <Lock className="w-4 h-4 text-orange-400" />
@@ -591,7 +590,7 @@ export default function DocumentsPage() {
                   <tr key={doc.id} className="hover:bg-white/5 transition-colors">
                     <td className="py-4 px-2">
                       <div className="flex items-center gap-3">
-                        {getFileTypeIcon(doc.type, doc.file_type)}
+                        {getFileTypeIcon(doc.type)}
                         <div>
                           <div className="font-medium max-w-[200px] truncate">{doc.name}</div>
                           <div className="text-sm text-white/60">

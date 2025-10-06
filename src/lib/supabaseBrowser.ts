@@ -7,6 +7,7 @@ export const supabaseBrowser = () => {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !key) {
+    console.error('Supabase environment check:', { url: !!url, key: !!key });
     throw new Error(
       "Missing Supabase environment variables. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local"
     );
