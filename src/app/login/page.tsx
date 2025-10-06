@@ -21,19 +21,28 @@ export default function Page() {
 
     try {
       const s = supabaseBrowser();
-      const { error } = await s.auth.signInWithPassword({
+      const { data, error } = await s.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
         toast.error(error.message);
-      } else {
+        console.error('Login error:', error);
+      } else if (data.session) {
+        console.log('Login successful, session created:', !!data.session);
         toast.success("Welcome back!");
+        
+        // Give a small delay to ensure session is properly set
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         router.push("/dashboard");
         router.refresh();
+      } else {
+        toast.error("Login failed - no session created");
       }
-    } catch {
+    } catch (error) {
+      console.error('Login exception:', error);
       toast.error("An error occurred during sign in");
     } finally {
       setLoading(false);
