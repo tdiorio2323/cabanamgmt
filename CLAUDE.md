@@ -4,32 +4,59 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Creator booking platform MVP for Cabana Management Group (locust_growth_accelerator). Platform handles promotional appearances and companionship services with comprehensive security-first workflow including identity verification, deposit processing, background screening, video interviews, and contract e-signing.
+Creator booking platform MVP for Cabana Management Group. Premium creator management platform for secure, vetted, compliant bookings focused on promotional appearances, brand representation, and companionship services with comprehensive 7-step verification pipeline.
 
 **Tech Stack**: Next.js 15 (App Router) + TypeScript + Tailwind CSS 4 + shadcn/ui + Stripe + Supabase + Framer Motion
 
-**Additional Documentation**:
-- `INTEGRATIONS.md` - Detailed vendor integration specifications (Stripe, Onfido/Veriff, Checkr/Certn, DocuSign, email providers)
-- `AGENTS.md` - Repository guidelines including module organization, coding style, testing guidelines, and PR conventions
+**Current Status (October 6, 2025): ~75% Complete**
+- ✅ Core infrastructure, database, auth, payments, UI/UX complete
+- ⏳ External service integrations pending (Onfido/Veriff, Checkr/Certn, DocuSign)
+- 🎯 Production launch targeted for Q1 2025
+
+**Documentation**:
+- `docs/architecture-diagram.md` - Complete system architecture with business context and compliance framework
+- `docs/session-summary-2025-10-06.md` - Comprehensive project handoff and status summary
+- `INTEGRATIONS.md` - Detailed vendor integration specifications (Stripe, Onfido/Veriff, Checkr/Certn, DocuSign)
+- `AGENTS.md` - Repository guidelines including module organization, coding style, testing, and PR conventions
+- `docs/TESTING.md` - Playwright testing setup and troubleshooting guide
 
 ## Development Commands
 
 ### Core Commands
 ```bash
-npm install           # Install dependencies (uses npm, not pnpm)
-npm run dev           # Start Turbopack dev server at localhost:3000
-npm run build         # Build production bundle (required before release)
-npm run start         # Serve production build locally
-npm run lint          # Run ESLint (must pass before PR)
-npm run typecheck     # Run TypeScript type checking without emitting files
-npm run audit         # Run project audit script (scripts/project-audit.mjs)
-node scripts/check-routes.mjs  # Audit route completeness
+pnpm install          # Install dependencies (configured to use pnpm@10.15.1)
+pnpm run dev          # Start Turbopack dev server at localhost:3000
+pnpm run build        # Build production bundle (required before release)
+pnpm run start        # Serve production build locally
+pnpm run lint         # Run ESLint (must pass before PR)
+pnpm run typecheck    # Run TypeScript type checking without emitting files
+pnpm run build:full   # Run typecheck + build (comprehensive pre-release check)
+```
+
+### Testing Commands
+```bash
+# Playwright end-to-end tests (requires .env.test.local configuration)
+pnpm run test:auth    # Run authentication smoke tests
+pnpm run test:smoke   # Run generated smoke tests (alias: pnpm run smoke)
+pnpm run test:all     # Run all Playwright tests
+pnpm run test:ui      # Run tests with visual UI (great for debugging)
+pnpm run verify:all   # Run route audit + smoke tests (comprehensive validation)
+
+# See docs/TESTING.md for detailed setup and troubleshooting
+```
+
+### Audit & Utility Scripts
+```bash
+pnpm run audit        # Run project audit script (scripts/project-audit.mjs)
+pnpm run audit:routes # Audit and scaffold routes (scripts/audit-and-scaffold.mjs)
+pnpm run seed:admin   # Seed admin user (scripts/seed-admin.mjs)
+pnpm run db:verify    # Verify database connection and schema
 ```
 
 ### Build Troubleshooting
 ```bash
 # If build fails with Google Fonts network errors:
-NEXT_TURBOPACK=0 npm run build  # Disable Turbopack (Next.js 15 may ignore this)
+NEXT_TURBOPACK=0 pnpm run build  # Disable Turbopack (Next.js 15 may ignore this)
 
 # Known issue: Next.js 15 may attempt Turbopack CSS processing even with NEXT_TURBOPACK=0
 # Workaround: Run builds on networked machine with access to fonts.googleapis.com
@@ -55,13 +82,24 @@ supabase db query "alter database postgres set app.admin_emails = 'tyler@tdstudi
 ```
 
 **Manual migration via Supabase Dashboard:**
-If CLI is unavailable, execute SQL files in Dashboard → SQL Editor:
+If CLI is unavailable, execute SQL files in Dashboard → SQL Editor in order:
 1. `supabase/migrations/0001_init.sql` - Core users/bookings tables
 2. `supabase/migrations/0003_vip.sql` - VIP codes + RLS policies
 3. `supabase/migrations/0004_vip_helpers.sql` - Helper functions (decrement_uses RPC)
-4. Run: `alter database postgres set app.admin_emails = 'your@email.com';`
+4. `supabase/migrations/0005_invites.sql` - Invites table
+5. `supabase/migrations/0006_invitations.sql` - Enhanced invitation system
+6. `supabase/migrations/20241218_comprehensive_security_hardening.sql` - Security policies (optional)
+7. Run: `alter database postgres set app.admin_emails = 'your@email.com';`
 
 **All schema changes must be tracked in migration files.**
+
+### Database Type Generation
+```bash
+pnpm run db:types     # Generate TypeScript types from Supabase schema
+pnpm run db:watch     # Auto-regenerate types when migrations change
+pnpm run db:diff      # Check for schema drift using migra
+pnpm run db:reset     # Reset local database (destructive - use with caution)
+```
 
 ## Architecture
 
@@ -107,6 +145,7 @@ Multiple Supabase client patterns for different contexts:
 ### API Routes
 
 **Production Routes:**
+- `/api/health` - Application health check
 - `/api/db/health` - Database health check
 - `/api/users/create` - User account creation
 - `/api/vip/create` - Generate VIP codes (admin-protected)
@@ -174,7 +213,7 @@ Applied via CSS variables in `src/app/layout.tsx`
 
 **Critical variables for basic functionality:**
 ```env
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000  # Used for absolute URLs and redirects
 
 # Supabase - Required for auth, database, VIP codes
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -234,10 +273,24 @@ RESEND_API_KEY=
 
 ## Testing & QA
 
-No automated tests yet - document manual QA steps in every PR. When adding tests:
-- Colocate `*.test.tsx` files next to components
+Playwright end-to-end tests are configured for authentication and smoke testing. See `docs/TESTING.md` for setup.
+
+**Running Tests:**
+- `pnpm run test:auth` - Authentication flow tests
+- `pnpm run test:smoke` - Generated smoke tests
+- `pnpm run test:ui` - Interactive test debugging
+- `pnpm run verify:all` - Full validation suite
+
+**Test Requirements:**
+- Copy `.env.test.local.example` to `.env.test.local` and configure test credentials
+- Dev server must be running (`pnpm run dev`)
+- Test user must exist in Supabase and be included in `ADMIN_EMAILS`
+
+**When Adding Tests:**
+- Colocate `*.test.tsx` files next to components for unit tests
+- Add new Playwright specs in `/tests` directory for E2E tests
 - Target critical booking flows + Supabase data transforms
-- Run `npm run lint` locally before pushing
+- Run `pnpm run lint` locally before pushing
 
 ## Commit & PR Guidelines
 
@@ -249,7 +302,7 @@ No automated tests yet - document manual QA steps in every PR. When adding tests
 
 Before running the application for the first time:
 
-- [ ] `npm install` to install all dependencies
+- [ ] `pnpm install` to install all dependencies (uses pnpm@10.15.1)
 - [ ] Copy `.env.local.example` to `.env.local`
 - [ ] Add Supabase credentials (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`)
 - [ ] Set `ADMIN_EMAILS=your@email.com` in `.env.local`
@@ -257,11 +310,17 @@ Before running the application for the first time:
 - [ ] Run `supabase link --project-ref dotfloiygvhsujlwzqgv`
 - [ ] Run `supabase db push` to apply all migrations
 - [ ] Run `supabase db query "alter database postgres set app.admin_emails = 'your@email.com';"` (match .env.local)
+- [ ] Generate database types: `pnpm run db:types`
 - [ ] Create test user in Supabase Dashboard → Authentication → Users (Email + Password provider must be enabled)
-- [ ] `npm run dev` to start development server
+- [ ] `pnpm run dev` to start development server
 - [ ] Visit `http://localhost:3000` and sign in with test user
 - [ ] Visit `http://localhost:3000/admin/codes` to generate initial VIP codes (admin email required)
 - [ ] Test VIP code redemption flow
+
+**Optional - Set up testing:**
+- [ ] Copy `.env.test.local.example` to `.env.test.local`
+- [ ] Add test credentials matching an admin user in Supabase
+- [ ] Run `pnpm run test:auth` to verify test setup
 
 **Common Issues:**
 - **Build fails with font errors**: Requires network access to fonts.googleapis.com or local font hosting
