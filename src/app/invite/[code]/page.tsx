@@ -1,10 +1,10 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { use } from 'react'
 
-import { PageProps } from "next";
-
-export default function AcceptInvite({ params }: PageProps<{ code: string }>) {
+export default function AcceptInvite({ params }: { params: Promise<{ code: string }> }) {
+    const { code } = use(params)
     const router = useRouter()
     const [status, setStatus] = useState<'idle' | 'ok' | 'error'>('idle')
     const [message, setMessage] = useState('')
@@ -13,7 +13,7 @@ export default function AcceptInvite({ params }: PageProps<{ code: string }>) {
         const r = await fetch('/api/invites/accept', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ code: params.code })
+            body: JSON.stringify({ code })
         })
         if (r.ok) {
             setStatus('ok'); setMessage('Invite accepted! Redirecting…')
@@ -22,7 +22,7 @@ export default function AcceptInvite({ params }: PageProps<{ code: string }>) {
             const j = await r.json().catch(() => ({}))
             setStatus('error'); setMessage(j.error || 'Failed to redeem')
         }
-    }, [params.code, router])
+    }, [code, router])
 
     useEffect(() => { redeem() }, [redeem])
 

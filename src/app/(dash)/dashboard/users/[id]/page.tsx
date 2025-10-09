@@ -6,10 +6,9 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-import { PageProps } from "next";
-
-export default async function UserDetailPage({ params }: PageProps<{ id: string }>) {
-  const { data: user, error } = await supabaseAdmin.auth.admin.getUserById(params.id);
+export default async function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const { data: user, error } = await supabaseAdmin.auth.admin.getUserById(id);
 
   if (error || !user.user) {
     notFound();

@@ -8,7 +8,7 @@ Creator booking platform MVP for Cabana Management Group. Premium creator manage
 
 **Tech Stack**: Next.js 15 (App Router) + TypeScript + Tailwind CSS 4 + shadcn/ui + Stripe + Supabase + Framer Motion
 
-**Current Status (October 6, 2025): ~75% Complete**
+**Current Status (October 9, 2025): ~75% Complete**
 
 - ✅ Core infrastructure, database, auth, payments, UI/UX complete
 - ⏳ External service integrations pending (Onfido/Veriff, Checkr/Certn, DocuSign)
@@ -56,6 +56,7 @@ pnpm run audit        # Run project audit script (scripts/project-audit.mjs)
 pnpm run audit:routes # Audit and scaffold routes (scripts/audit-and-scaffold.mjs)
 pnpm run seed:admin   # Seed admin user (scripts/seed-admin.mjs)
 pnpm run db:verify    # Verify database connection and schema
+pnpm run analyze      # Analyze bundle size with @next/bundle-analyzer
 ```
 
 ### Build Troubleshooting
@@ -108,6 +109,13 @@ pnpm run db:types     # Generate TypeScript types from Supabase schema
 pnpm run db:watch     # Auto-regenerate types when migrations change
 pnpm run db:diff      # Check for schema drift using migra
 pnpm run db:reset     # Reset local database (destructive - use with caution)
+```
+
+### Supabase Functions
+
+```bash
+pnpm run fx:serve     # Serve Supabase Edge Functions locally (no JWT verification)
+pnpm run fx:deploy    # Deploy Supabase Edge Functions to remote
 ```
 
 ## Architecture
@@ -233,6 +241,7 @@ Applied via CSS variables in `src/app/layout.tsx`
 
 ```env
 NEXT_PUBLIC_SITE_URL=http://localhost:3000  # Used for absolute URLs and redirects
+NEXT_PUBLIC_BASE_URL=http://localhost:3000  # Base URL for API calls
 
 # Supabase - Required for auth, database, VIP codes
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
