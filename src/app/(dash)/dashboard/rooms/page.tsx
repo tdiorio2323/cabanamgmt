@@ -46,7 +46,6 @@ export default function RoomsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [_showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     fetchRooms();
@@ -200,7 +199,6 @@ export default function RoomsPage() {
           <p className="text-white/60 mt-2">Manage properties, availability, and maintenance</p>
         </div>
         <button
-          onClick={() => setShowCreateModal(true)}
           className="liquid-btn px-4 py-2 rounded-lg flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />

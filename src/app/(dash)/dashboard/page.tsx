@@ -10,7 +10,6 @@ export default async function OverviewPage() {
 
   const [
     { count: codesCount },
-    { count: _redemptionsCount },
     { count: usersCount },
     { count: invitesCount },
   ] = await Promise.all([
@@ -195,12 +194,6 @@ function KpiCard({
 }
 
 function StatusItem({ label, status }: { label: string; status: 'online' | 'offline' | 'warning' }) {
-  const _statusColors = {
-    online: 'text-green-400',
-    offline: 'text-red-400',
-    warning: 'text-yellow-400'
-  };
-
   return (
     <div className="flex items-center justify-between p-2 rounded-lg bg-white/5">
       <span className="text-sm">{label}</span>

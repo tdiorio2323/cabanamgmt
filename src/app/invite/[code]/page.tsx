@@ -2,7 +2,9 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
-export default function AcceptInvite({ params }: { params: { code: string } }) {
+import { PageProps } from "next";
+
+export default function AcceptInvite({ params }: PageProps<{ code: string }>) {
     const router = useRouter()
     const [status, setStatus] = useState<'idle' | 'ok' | 'error'>('idle')
     const [message, setMessage] = useState('')

@@ -21,14 +21,14 @@ const checkUser = async (email) => {
 
   try {
     // Get user by email using admin API
-    const { data, error } = await supabase.auth.admin.listUsers();
+    const { data: usersData, error } = await supabase.auth.admin.listUsers();
 
     if (error) {
       console.error('❌ Error listing users:', error.message);
       return;
     }
 
-    const user = data.users.find(u => u.email === email);
+    const user = usersData.users.find(u => u.email === email);
 
     if (user) {
       console.log('✅ User found in Supabase Auth:');
@@ -61,7 +61,7 @@ const resetPassword = async (email, newPassword) => {
   console.log(`🔄 Resetting password for: ${email}`);
 
   try {
-    const { data, error } = await supabase.auth.admin.updateUserById(
+    const { error } = await supabase.auth.admin.updateUserById(
       // First get the user ID
       (await supabase.auth.admin.listUsers()).data.users.find(u => u.email === email)?.id,
       { password: newPassword }

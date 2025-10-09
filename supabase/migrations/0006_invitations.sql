@@ -31,7 +31,7 @@ ALTER TABLE public.invites ENABLE ROW LEVEL SECURITY;
 
 -- Admin can insert and view all invites
 CREATE POLICY "Admins can manage invites" ON public.invites
-    FOR ALL USING (public.is_admin(auth.email()));
+    FOR ALL USING (public.is_admin());
 
 -- Users can view invites sent to their email
 CREATE POLICY "Users can view own invites" ON public.invites
@@ -52,7 +52,7 @@ DECLARE
     v_days int;
 BEGIN
     -- Check admin permissions
-    IF NOT public.is_admin(auth.email()) THEN 
+    IF NOT public.is_admin() THEN 
         RAISE EXCEPTION 'not_admin'; 
     END IF;
     

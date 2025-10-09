@@ -88,7 +88,6 @@ export default function MediaLibraryPage() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [folderFilter, setFolderFilter] = useState("all");
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [_selectedItems, _setSelectedItems] = useState<Set<string>>(new Set());
   const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
 
   useEffect(() => {

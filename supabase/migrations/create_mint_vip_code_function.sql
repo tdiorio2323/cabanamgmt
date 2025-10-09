@@ -20,7 +20,7 @@ BEGIN
   v_user_id := auth.uid();
 
   -- Check if user is admin
-  IF NOT public.is_admin(auth.email()) THEN
+  IF NOT public.is_admin() THEN
     RAISE EXCEPTION 'Only admins can mint VIP codes';
   END IF;
 

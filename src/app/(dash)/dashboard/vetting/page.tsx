@@ -47,7 +47,6 @@ export default function VettingPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
-  const [_selectedApplication, setSelectedApplication] = useState<object | null>(null);
 
   useEffect(() => {
     fetchApplications();
@@ -183,20 +182,20 @@ export default function VettingPage() {
     return 'text-red-400';
   };
 
-  const handleApprove = async (_id: string) => {
+  const handleApprove = async () => {
     try {
       // Update application status
       toast.success('Application approved');
-    } catch (_error) {
+    } catch {
       toast.error('Failed to approve application');
     }
   };
 
-  const handleReject = async (_id: string) => {
+  const handleReject = async () => {
     try {
       // Update application status
       toast.success('Application rejected');
-    } catch (_error) {
+    } catch {
       toast.error('Failed to reject application');
     }
   };
@@ -412,7 +411,7 @@ export default function VettingPage() {
                 {/* Actions */}
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setSelectedApplication(application)}
+                    onClick={() => {}}
                     className="p-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 transition-colors text-blue-400"
                     title="View Details"
                   >
@@ -420,7 +419,7 @@ export default function VettingPage() {
                   </button>
                   {application.status !== 'approved' && (
                     <button
-                      onClick={() => handleApprove(application.id)}
+                      onClick={() => handleApprove()}
                       className="p-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 transition-colors text-green-400"
                       title="Approve"
                     >
@@ -429,7 +428,7 @@ export default function VettingPage() {
                   )}
                   {application.status !== 'rejected' && (
                     <button
-                      onClick={() => handleReject(application.id)}
+                      onClick={() => handleReject()}
                       className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition-colors text-red-400"
                       title="Reject"
                     >

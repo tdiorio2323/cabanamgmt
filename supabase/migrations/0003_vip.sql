@@ -23,7 +23,10 @@ alter table vip_codes enable row level security;
 alter table vip_redemptions enable row level security;
 
 create or replace function is_admin() returns boolean language sql stable as $$
-  select auth.jwt()->>'email' = any (string_to_array(coalesce(current_setting('app.admin_emails', true),'admin@example.com'), ','));
+  select exists (
+    select 1 from public.admin_emails
+    where email = auth.jwt()->>'email'
+  );
 $$;
 
 drop policy if exists vip_codes_admin_read on vip_codes;
@@ -37,6 +40,3 @@ create policy vip_codes_admin_insert on vip_codes       for insert  to authentic
 create policy vip_codes_admin_update on vip_codes       for update  to authenticated using (is_admin()) with check (is_admin());
 create policy vip_redemptions_admin_read on vip_redemptions for select to authenticated using (is_admin());
 create policy vip_redemptions_self_insert on vip_redemptions for insert to authenticated with check (auth.uid() = user_id);
-
--- persistent admin list (edit emails)
-alter database postgres set app.admin_emails = 'tyler@tdstudiosny.com';

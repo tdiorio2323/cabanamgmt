@@ -75,7 +75,6 @@ export default function SystemConfigPage() {
   const [selectedEnvironment, setSelectedEnvironment] = useState<'production' | 'staging' | 'development'>("production");
   const [searchTerm, setSearchTerm] = useState("");
   const [showSensitive, setShowSensitive] = useState(false);
-  const [_editingConfig, setEditingConfig] = useState<string | null>(null);
 
   const handleCopyValue = useCallback(async (value: string | number | boolean) => {
     try {
@@ -84,10 +83,6 @@ export default function SystemConfigPage() {
     } catch {
       toast.error("Failed to copy value");
     }
-  }, []);
-
-  const handleEditConfig = useCallback((configId: string) => {
-    setEditingConfig(configId);
   }, []);
 
   const handleDeleteConfig = useCallback(async (configId: string) => {
@@ -721,7 +716,6 @@ export default function SystemConfigPage() {
                     <button
                       className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
                       title="Edit"
-                      onClick={() => handleEditConfig(config.id)}
                     >
                       <Edit className="w-4 h-4" />
                     </button>

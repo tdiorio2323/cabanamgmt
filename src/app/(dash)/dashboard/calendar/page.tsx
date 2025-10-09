@@ -30,7 +30,6 @@ type Event = {
 export default function CalendarPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [view, setView] = useState<'month' | 'week' | 'day'>('month');
   const [loading, setLoading] = useState(true);
 
@@ -295,7 +294,6 @@ export default function CalendarPage() {
                       ? 'ring-2 ring-blue-400/50 bg-blue-400/10'
                       : ''
                     }`}
-                  onClick={() => day && setSelectedDate(day)}
                 >
                   {day && (
                     <>

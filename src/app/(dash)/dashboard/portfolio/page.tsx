@@ -109,7 +109,6 @@ export default function PortfolioPage() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [_selectedItems, _setSelectedItems] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchPortfolioData();

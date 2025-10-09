@@ -64,12 +64,12 @@ export default function Page() {
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!invite || !email || !password) return;
-    
+
     setRedeeming(true);
-    
+
     try {
       const supabase = supabaseBrowser();
-      
+
       // Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -143,12 +143,12 @@ export default function Page() {
             <p className="text-sm text-white/70">You&apos;ve been invited as:</p>
             <p className="font-semibold capitalize">{invite.type} - {invite.name}</p>
           </div>
-          
+
           <form onSubmit={handleRedeem} className="space-y-3">
             <p className="text-sm text-white/70">
               Create your account to redeem this {invite.type} access:
             </p>
-            
+
             <div>
               <label className="text-sm opacity-70 mb-1 block">Email</label>
               <input
@@ -160,7 +160,7 @@ export default function Page() {
                 required
               />
             </div>
-            
+
             <div>
               <label className="text-sm opacity-70 mb-1 block">Password</label>
               <input
@@ -173,7 +173,7 @@ export default function Page() {
                 minLength={6}
               />
             </div>
-            
+
             <LiquidButton type="submit" disabled={redeeming}>
               {redeeming ? "Creating Account..." : `Activate ${invite.type} Access`}
             </LiquidButton>

@@ -9,11 +9,13 @@ Creator booking platform MVP for Cabana Management Group. Premium creator manage
 **Tech Stack**: Next.js 15 (App Router) + TypeScript + Tailwind CSS 4 + shadcn/ui + Stripe + Supabase + Framer Motion
 
 **Current Status (October 6, 2025): ~75% Complete**
+
 - ✅ Core infrastructure, database, auth, payments, UI/UX complete
 - ⏳ External service integrations pending (Onfido/Veriff, Checkr/Certn, DocuSign)
 - 🎯 Production launch targeted for Q1 2025
 
 **Documentation**:
+
 - `docs/architecture-diagram.md` - Complete system architecture with business context and compliance framework
 - `docs/session-summary-2025-10-06.md` - Comprehensive project handoff and status summary
 - `INTEGRATIONS.md` - Detailed vendor integration specifications (Stripe, Onfido/Veriff, Checkr/Certn, DocuSign)
@@ -23,6 +25,7 @@ Creator booking platform MVP for Cabana Management Group. Premium creator manage
 ## Development Commands
 
 ### Core Commands
+
 ```bash
 pnpm install          # Install dependencies (configured to use pnpm@10.15.1)
 pnpm run dev          # Start Turbopack dev server at localhost:3000
@@ -34,6 +37,7 @@ pnpm run build:full   # Run typecheck + build (comprehensive pre-release check)
 ```
 
 ### Testing Commands
+
 ```bash
 # Playwright end-to-end tests (requires .env.test.local configuration)
 pnpm run test:auth    # Run authentication smoke tests
@@ -46,6 +50,7 @@ pnpm run verify:all   # Run route audit + smoke tests (comprehensive validation)
 ```
 
 ### Audit & Utility Scripts
+
 ```bash
 pnpm run audit        # Run project audit script (scripts/project-audit.mjs)
 pnpm run audit:routes # Audit and scaffold routes (scripts/audit-and-scaffold.mjs)
@@ -54,6 +59,7 @@ pnpm run db:verify    # Verify database connection and schema
 ```
 
 ### Build Troubleshooting
+
 ```bash
 # If build fails with Google Fonts network errors:
 NEXT_TURBOPACK=0 pnpm run build  # Disable Turbopack (Next.js 15 may ignore this)
@@ -66,6 +72,7 @@ NEXT_TURBOPACK=0 pnpm run build  # Disable Turbopack (Next.js 15 may ignore this
 ### Database Migrations
 
 **Required migrations before first run:**
+
 ```bash
 # 1. Login to Supabase CLI (one-time setup)
 supabase login
@@ -83,6 +90,7 @@ supabase db query "alter database postgres set app.admin_emails = 'tyler@tdstudi
 
 **Manual migration via Supabase Dashboard:**
 If CLI is unavailable, execute SQL files in Dashboard → SQL Editor in order:
+
 1. `supabase/migrations/0001_init.sql` - Core users/bookings tables
 2. `supabase/migrations/0003_vip.sql` - VIP codes + RLS policies
 3. `supabase/migrations/0004_vip_helpers.sql` - Helper functions (decrement_uses RPC)
@@ -94,6 +102,7 @@ If CLI is unavailable, execute SQL files in Dashboard → SQL Editor in order:
 **All schema changes must be tracked in migration files.**
 
 ### Database Type Generation
+
 ```bash
 pnpm run db:types     # Generate TypeScript types from Supabase schema
 pnpm run db:watch     # Auto-regenerate types when migrations change
@@ -121,21 +130,25 @@ The application has evolved into three parallel tracks:
 ### Database Schema
 
 Core tables in `supabase/migrations/0001_init.sql`:
+
 - `users` - User profiles with verification_status, screening_status
 - `bookings` - Booking records linked to users with deposit_status, interview_status, nda_signed
 
 VIP system in `supabase/migrations/0003_vip.sql`:
+
 - `vip_codes` - Admin-generated invite codes with role, usage limits, expiration
 - `vip_redemptions` - Code redemption tracking with user_id, IP, user_agent
 - RLS policies enforcing admin-only access via `is_admin()` function
 
 Invitation system (newer migrations):
+
 - Additional invitation/invite tables for enhanced invitation tracking
 - See `supabase/migrations/0005_invites.sql` and `0006_invitations.sql` for schema details
 
 ### Supabase Client Files
 
 Multiple Supabase client patterns for different contexts:
+
 - `src/lib/supabase.ts` - Legacy browser client (basic)
 - `src/lib/supabaseBrowser.ts` - SSR-compatible browser client
 - `src/lib/supabaseServer.ts` - Server-side client for route handlers
@@ -145,6 +158,7 @@ Multiple Supabase client patterns for different contexts:
 ### API Routes
 
 **Production Routes:**
+
 - `/api/health` - Application health check
 - `/api/db/health` - Database health check
 - `/api/users/create` - User account creation
@@ -158,6 +172,7 @@ Multiple Supabase client patterns for different contexts:
 - `/api/stripe/create-deposit` - Create Stripe PaymentIntent
 
 **Stubbed Routes (need vendor SDK integration):**
+
 - `/api/identity/start` + `/api/identity/webhook` - Onfido/Veriff IDV
 - `/api/screening/start` + `/api/screening/webhook` - Checkr/Certn background checks
 - `/api/stripe/webhook` - Stripe event processing
@@ -167,6 +182,7 @@ Multiple Supabase client patterns for different contexts:
 ### Key Components
 
 **Booking Flow:**
+
 - `Stepper.tsx` - 7-step progress indicator (Intake, Verify, Deposit, Screening, Interview, Contracts, Confirm)
 - `Consent.tsx` - React Hook Form + Zod validation for consent
 - `IdCapture.tsx` - File upload for ID + selfie
@@ -176,6 +192,7 @@ Multiple Supabase client patterns for different contexts:
 - `ContractViewer.tsx` - DocuSign redirect handler
 
 **UI Library:**
+
 - `GlassCard.tsx` - Glassmorphic card component
 - `HeroLockup.tsx`, `PageHero.tsx` - Hero section patterns
 - `ChromeList.tsx` - Feature list component
@@ -187,6 +204,7 @@ Multiple Supabase client patterns for different contexts:
 ### Custom Fonts
 
 `src/lib/fonts.ts` defines four font families:
+
 - `sans` - Primary sans-serif
 - `display` - Display/heading font
 - `inter` - Inter font
@@ -212,6 +230,7 @@ Applied via CSS variables in `src/app/layout.tsx`
 4. Add vendor API keys as integrations are implemented
 
 **Critical variables for basic functionality:**
+
 ```env
 NEXT_PUBLIC_SITE_URL=http://localhost:3000  # Used for absolute URLs and redirects
 
@@ -230,6 +249,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
 **Optional vendor integrations (stub routes exist):**
+
 ```env
 # Identity Verification (Onfido/Veriff)
 ONFIDO_API_TOKEN=
@@ -276,17 +296,20 @@ RESEND_API_KEY=
 Playwright end-to-end tests are configured for authentication and smoke testing. See `docs/TESTING.md` for setup.
 
 **Running Tests:**
+
 - `pnpm run test:auth` - Authentication flow tests
 - `pnpm run test:smoke` - Generated smoke tests
 - `pnpm run test:ui` - Interactive test debugging
 - `pnpm run verify:all` - Full validation suite
 
 **Test Requirements:**
+
 - Copy `.env.test.local.example` to `.env.test.local` and configure test credentials
 - Dev server must be running (`pnpm run dev`)
 - Test user must exist in Supabase and be included in `ADMIN_EMAILS`
 
 **When Adding Tests:**
+
 - Colocate `*.test.tsx` files next to components for unit tests
 - Add new Playwright specs in `/tests` directory for E2E tests
 - Target critical booking flows + Supabase data transforms
@@ -318,11 +341,13 @@ Before running the application for the first time:
 - [ ] Test VIP code redemption flow
 
 **Optional - Set up testing:**
+
 - [ ] Copy `.env.test.local.example` to `.env.test.local`
 - [ ] Add test credentials matching an admin user in Supabase
 - [ ] Run `pnpm run test:auth` to verify test setup
 
 **Common Issues:**
+
 - **Build fails with font errors**: Requires network access to fonts.googleapis.com or local font hosting
 - **Admin pages show "Unauthorized"**: Verify `ADMIN_EMAILS` matches database setting exactly (no extra spaces)
 - **VIP codes fail to redeem**: Check that migrations 0003 and 0004 ran successfully and RLS policies are active
