@@ -6,6 +6,7 @@ import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import GlassCard from "@/components/ui/GlassCard";
 import LiquidButton from "@/components/ui/LiquidButton";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 
 type VipInvite = {
   id: string;
@@ -49,7 +50,7 @@ export default function Page() {
 
         setInvite(data);
       } catch (error) {
-        console.error('Error fetching invite:', error);
+        logger.error('Error fetching invite:', error);
         toast.error("Failed to load VIP invite");
       } finally {
         setLoading(false);
@@ -98,7 +99,7 @@ export default function Page() {
         router.push("/dashboard");
       }
     } catch (error) {
-      console.error('Error redeeming invite:', error);
+      logger.error('Error redeeming invite:', error);
       toast.error(error instanceof Error ? error.message : "Failed to redeem invite");
     } finally {
       setRedeeming(false);
