@@ -298,7 +298,7 @@ export default function PortfolioPage() {
           created_at: "2025-08-01T00:00:00Z",
           created_by: "admin_1",
           creator_name: "Admin User",
-          items: [mockPortfolioItems[0]],
+          items: mockPortfolioItems[0] ? [mockPortfolioItems[0]] : [],
           custom_branding: {
             logo_url: "/branding/cabana-logo.png",
             color_scheme: "luxury-gold",
@@ -321,7 +321,7 @@ export default function PortfolioPage() {
           created_at: "2025-07-15T00:00:00Z",
           created_by: "creator_2",
           creator_name: "Michael Chen",
-          items: [mockPortfolioItems[1]],
+          items: mockPortfolioItems[1] ? [mockPortfolioItems[1]] : [],
           custom_branding: {
             color_scheme: "elegant-blue",
             font_family: "Manrope"

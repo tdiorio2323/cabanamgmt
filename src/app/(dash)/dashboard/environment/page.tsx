@@ -458,7 +458,10 @@ export default function EnvironmentPage() {
     if (!acc[envVar.category]) {
       acc[envVar.category] = [];
     }
-    acc[envVar.category].push(envVar);
+    const category = acc[envVar.category];
+    if (category) {
+      category.push(envVar);
+    }
     return acc;
   }, {} as Record<string, EnvironmentVariable[]>);
 
