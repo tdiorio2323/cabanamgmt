@@ -1,5 +1,20 @@
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { supabase } from "./supabase";
+
+const isBrowser = typeof window !== "undefined";
+
+if (isBrowser) {
+  throw new Error("@/lib/db is server-only and must not be imported in client bundles");
+}
+
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!url || !serviceRoleKey) {
+  throw new Error("Missing Supabase server credentials. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.");
+}
+
+const supabase = createClient(url, serviceRoleKey, { auth: { persistSession: false } });
 
 // =============================
 // Zod Schemas
@@ -39,7 +54,7 @@ export type Booking = z.infer<typeof bookingSchema>;
 // User Helpers
 // =============================
 
-export async function createUser(user: Omit<User, 'id'>) {
+export async function createUser(user: Omit<User, "id">) {
   const parsed = userSchema.parse(user);
   const { data, error } = await supabase
     .from("users")
@@ -56,15 +71,15 @@ export async function getUserByEmail(email: string) {
     .from("users")
     .select("*")
     .eq("email", email)
-    .single();
+    .maybeSingle();
 
-  if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows
+  if (error && error.code !== "PGRST116") throw error; // PGRST116 = no rows
   return data;
 }
 
 export async function updateUserStatus(
   id: string,
-  fields: Partial<Pick<User, "verification_status" | "screening_status">>
+  fields: Partial<Pick<User, "verification_status" | "screening_status">>,
 ) {
   const { data, error } = await supabase
     .from("users")
@@ -81,7 +96,7 @@ export async function updateUserStatus(
 // Booking Helpers
 // =============================
 
-export async function createBooking(booking: Omit<Booking, 'id'>) {
+export async function createBooking(booking: Omit<Booking, "id">) {
   const parsed = bookingSchema.parse(booking);
   const { data, error } = await supabase
     .from("bookings")
@@ -95,7 +110,7 @@ export async function createBooking(booking: Omit<Booking, 'id'>) {
 
 export async function updateBookingStatus(
   id: string,
-  fields: Partial<Pick<Booking, "deposit_status" | "interview_status" | "nda_signed" | "payment_intent_id">>
+  fields: Partial<Pick<Booking, "deposit_status" | "interview_status" | "nda_signed" | "payment_intent_id">>,
 ) {
   const { data, error } = await supabase
     .from("bookings")
