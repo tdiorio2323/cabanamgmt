@@ -13,49 +13,49 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
   }
 
-  const payload = await request.json().catch(() => ({})) as { code?: string };
+  const payload = (await request.json().catch(() => ({}))) as { code?: string };
   const codeInput = payload.code?.trim().toUpperCase();
 
   if (!codeInput) {
     return NextResponse.json({ error: "code required" }, { status: 400 });
   }
 
-  const { data: codes, error: findError } = await supabaseAdmin
+  const { data: code, error: findError } = await supabaseAdmin
     .from("vip_codes")
-    .select("*")
+    .select("id, code, expires_at, uses_remaining, role")
     .eq("code", codeInput)
-    .limit(1);
+    .maybeSingle();
 
-  if (findError || !codes?.length) {
+  if (findError || !code) {
     return NextResponse.json({ error: "invalid code" }, { status: 404 });
   }
 
-  const code = codes[0];
-
-  if (new Date(code.expires_at) < new Date()) {
-    return NextResponse.json({ error: "expired" }, { status: 400 });
+  if (code.expires_at && new Date(code.expires_at) < new Date()) {
+    return NextResponse.json({ error: "expired" }, { status: 410 });
   }
 
   if (code.uses_remaining <= 0) {
-    return NextResponse.json({ error: "exhausted" }, { status: 400 });
+    return NextResponse.json({ error: "exhausted" }, { status: 410 });
   }
 
   const forwarded = request.headers.get("x-forwarded-for") || "";
   const ipAddress = forwarded.split(",")[0]?.trim() || null;
   const userAgent = request.headers.get("user-agent") || undefined;
 
-  const insertResult = await supabaseAdmin.from("vip_redemptions").insert({
-    code_id: code.id,
-    user_id: session.user.id,
-    ip: ipAddress,
-    user_agent: userAgent,
-  });
+  const redemptionResult = await supabaseAdmin
+    .from("vip_redemptions")
+    .insert({
+      code_id: code.id,
+      user_id: session.user.id,
+      ip: ipAddress,
+      user_agent: userAgent,
+    });
 
-  if (insertResult.error) {
-    return NextResponse.json({ error: insertResult.error.message }, { status: 400 });
+  if (redemptionResult.error) {
+    return NextResponse.json({ error: redemptionResult.error.message }, { status: 400 });
   }
 
-  const decrementResult = await supabaseAdmin.rpc("decrement_uses", { p_code_id: code.id });
+  const decrementResult = await supabaseAdmin.rpc("decrement_uses", { p_code: code.code });
 
   if (decrementResult.error) {
     await supabaseAdmin
