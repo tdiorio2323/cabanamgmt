@@ -2,6 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 
+if (process.env.CI !== 'true' && process.env.ALLOW_SCAFFOLD !== 'true') {
+  console.log('Scaffold disabled by default. Set ALLOW_SCAFFOLD=true to enable.');
+  process.exit(0);
+}
+
 const spec = JSON.parse(fs.readFileSync("docs/route-spec.json", "utf8"));
 const appRoots = ["app", "src/app"].filter(p => fs.existsSync(p));
 if (!appRoots.length) { console.error("No app/ or src/app/ found"); process.exit(1); }
