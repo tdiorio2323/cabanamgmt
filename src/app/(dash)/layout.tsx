@@ -14,13 +14,16 @@ export default function DashLayout({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     let mounted = true;
+    let cleanup: (() => void) | undefined;
 
     async function checkAuth() {
       try {
         const s = supabaseBrowser();
 
         // Set up auth state listener
-        const { data: { subscription } } = s.auth.onAuthStateChange(async (event, session) => {
+        const {
+          data: { subscription },
+        } = s.auth.onAuthStateChange(async (event, session) => {
           if (!mounted) return;
 
           logger.log('Auth state change:', event, !!session);
@@ -34,6 +37,10 @@ export default function DashLayout({ children }: { children: React.ReactNode }) 
             setLoading(false);
           }
         });
+
+        cleanup = () => {
+          subscription.unsubscribe();
+        };
 
         // Check current session with a small delay to ensure it's loaded
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -58,10 +65,6 @@ export default function DashLayout({ children }: { children: React.ReactNode }) 
 
         setLoading(false);
 
-        // Cleanup function
-        return () => {
-          subscription.unsubscribe();
-        };
       } catch (error) {
         logger.error('Auth check failed:', error);
         if (mounted) {
@@ -76,6 +79,7 @@ export default function DashLayout({ children }: { children: React.ReactNode }) 
 
     return () => {
       mounted = false;
+      cleanup?.();
     };
   }, [router]);
 
