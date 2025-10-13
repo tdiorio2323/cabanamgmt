@@ -2,10 +2,12 @@ import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.test.local' });
 
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || process.env.APP_URL || 'http://localhost:3000';
+
 export default defineConfig({
   testDir: './tests',
   use: {
-    baseURL: process.env.APP_URL || 'http://localhost:3001',
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },

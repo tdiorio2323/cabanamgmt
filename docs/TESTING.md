@@ -41,7 +41,7 @@ TEST_PASSWORD=yourSecurePassword123
 pnpm run test:auth
 
 # Run with visual UI (great for debugging)
-pnpm run test:auth:ui
+pnpm run test:ui
 
 # Run all tests
 pnpm exec playwright test

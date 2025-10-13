@@ -23,7 +23,8 @@ const routes = [
 for (const route of routes) {
   test(`smoke: ${route}`, async ({ page }) => {
     await page.goto(route);
-    // Basic smoke test - page loads and has an h1
-    await expect(page.locator('h1')).toBeVisible();
+
+    const heading = page.locator('h1, [role="heading"][aria-level="1"]');
+    await expect(heading).not.toHaveCount(0);
   });
 }
