@@ -8,16 +8,15 @@ export default async function OverviewPage() {
   const session = await getSession();
   const isAdmin = isAdminEmail(session?.user?.email);
 
-  const [
-    { count: codesCount },
-    { count: usersCount },
-    { count: invitesCount },
-  ] = await Promise.all([
+  const [vipCodesSummary, authUsersSummary, inviteSummary] = await Promise.all([
     supabaseAdmin.from("vip_codes").select("*", { count: "exact", head: true }),
-    supabaseAdmin.from("vip_redemptions").select("*", { count: "exact", head: true }),
     supabaseAdmin.auth.admin.listUsers().then(({ data }) => ({ count: data.users.length })),
     supabaseAdmin.from("invites").select("*", { count: "exact", head: true }),
   ]);
+
+  const codesCount = vipCodesSummary.count ?? 0;
+  const usersCount = authUsersSummary.count ?? 0;
+  const invitesCount = inviteSummary.count ?? 0;
 
   const { data: recentCodes } = await supabaseAdmin
     .from("vip_codes")
