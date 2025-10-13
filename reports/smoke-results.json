@@ -1,0 +1,110 @@
+{
+  "timestamp": "2025-10-09T22:02:01.477Z",
+  "baseUrl": "http://localhost:3002",
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "latency": 833,
+      "check": "PASS",
+      "message": "200"
+    },
+    {
+      "path": "/login",
+      "status": 200,
+      "latency": 2649,
+      "check": "PASS",
+      "message": "200"
+    },
+    {
+      "path": "/dashboard",
+      "status": 200,
+      "latency": 341,
+      "check": "PASS",
+      "message": "200"
+    },
+    {
+      "path": "/dashboard/users",
+      "status": 200,
+      "latency": 118,
+      "check": "PASS",
+      "message": "200"
+    },
+    {
+      "path": "/dashboard/bookings",
+      "status": 200,
+      "latency": 105,
+      "check": "PASS",
+      "message": "200"
+    },
+    {
+      "path": "/dashboard/vetting",
+      "status": 200,
+      "latency": 276,
+      "check": "PASS",
+      "message": "200"
+    },
+    {
+      "path": "/dashboard/media",
+      "status": 200,
+      "latency": 436,
+      "check": "PASS",
+      "message": "200"
+    },
+    {
+      "path": "/dashboard/contracts",
+      "status": 200,
+      "latency": 144,
+      "check": "PASS",
+      "message": "200"
+    },
+    {
+      "path": "/dashboard/payments",
+      "status": 200,
+      "latency": 127,
+      "check": "PASS",
+      "message": "200"
+    },
+    {
+      "path": "/dashboard/invite",
+      "status": 200,
+      "latency": 143,
+      "check": "PASS",
+      "message": "200"
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "latency": 875,
+      "check": "PASS",
+      "message": "200 (valid JSON)"
+    },
+    {
+      "path": "/api/db/health",
+      "status": 200,
+      "latency": 1024,
+      "check": "PASS",
+      "message": "200 (valid JSON)"
+    },
+    {
+      "path": "/api/vip/list",
+      "status": 401,
+      "latency": 1224,
+      "check": "PASS",
+      "message": "401 (unauthenticated)"
+    },
+    {
+      "path": "/api/invites/list",
+      "status": 405,
+      "latency": 776,
+      "check": "WARN",
+      "message": "405 (invalid JSON)"
+    }
+  ],
+  "summary": {
+    "passed": 13,
+    "warned": 1,
+    "failed": 0,
+    "avgLatency": 648
+  }
+}

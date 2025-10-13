@@ -1,23 +1,19 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-Follow the Next.js app-router layout: route segments live in `src/app`, with colocated server actions and route-specific helpers. Shared UI primitives belong in `src/components`, and cross-cutting utilities (Supabase clients, Zustand stores, Stripe helpers) live in `src/lib`. Static media sits in `public`, while database migrations are tracked in `supabase/migrations` and must mirror every schema change committed to code.
+Source routes, server actions, and helpers live in `src/app`, following the Next.js app-router segment layout. Shared UI primitives sit in `src/components`, while reusable utilities (Supabase clients, Zustand stores, Stripe helpers) belong in `src/lib`. Place static media in `public`, and mirror every schema change with a matching migration under `supabase/migrations`. Add tests next to their targets, e.g., `src/components/Stepper.test.tsx`.
 
 ## Build, Test, and Development Commands
-- `npm install` – refresh dependencies before starting a task.
-- `npm run dev` – run the Turbopack dev server at `http://localhost:3000` for iterative work.
-- `npm run build` – create the production bundle; run prior to release validation.
-- `npm run start` – serve the production build locally for smoke checks.
-- `npm run lint` – execute ESLint with the Next.js config; this gate must pass before opening a PR.
+Run `npm install` to refresh dependencies before coding. Use `npm run dev` to start the Turbopack dev server at `http://localhost:3000`. Execute `npm run lint` prior to commits to satisfy the Next.js ESLint gate. Build production artifacts with `npm run build`, and confirm them locally via `npm run start`.
 
 ## Coding Style & Naming Conventions
-Use TypeScript with 2-space indentation and trailing commas in multiline literals. React components, hooks, and Zustand stores use PascalCase filenames (`Stepper.tsx`, `useBookingStore.ts`). Route handlers in `src/app` stay lower-case and hyphenated to match URLs. Prefer Tailwind utility classes; introduce scoped CSS only when composition demands it and keep styles near their component.
+Write TypeScript with 2-space indentation and trailing commas in multiline literals. Prefer Tailwind utility classes; add scoped CSS only when composition demands it. Name React components, hooks, and Zustand stores with PascalCase filenames such as `useBookingStore.ts`. Keep route handlers lower-case and hyphenated to align with URL segments.
 
 ## Testing Guidelines
-Automated tests are not yet wired, so document manual QA steps in every PR. When adding tests, colocate `*.test.tsx` files next to the component, mirror the filename, and target critical booking flows plus Supabase data transforms. Run `npm run lint` and any new tests locally before pushing.
+Automated tests are not yet wired, so document manual QA steps for each change. When adding tests, colocate `*.test.tsx` files alongside components and focus on booking flows and Supabase data transforms. Always run `npm run lint` after introducing tests.
 
 ## Commit & Pull Request Guidelines
-Craft commit messages in the existing "Type: short summary" style, keeping each commit independently revertible. PRs must state the problem, summarize the solution, include screenshots for UI changes, call out Supabase migration impacts, and link to tracking issues. Note any new environment variables so reviewers can configure deploy previews.
+Follow the "Type: short summary" format for commits, keeping each change independently revertible. PRs should explain the problem, outline the solution, attach screenshots for UI updates, note Supabase migration impacts, list new environment variables, and link relevant tracking issues.
 
 ## Security & Configuration Tips
-Keep secrets like `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `STRIPE_SECRET_KEY` in `.env.local`. Review Supabase RLS policies and Stripe webhook handling whenever authentication or payments code changes. Clean up debug logging before merging.
+Store secrets like `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `STRIPE_SECRET_KEY` in `.env.local`. Review Supabase RLS policies and Stripe webhook handling whenever authentication or payments code changes. Remove debug logging before merging.
