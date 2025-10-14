@@ -1,3 +1,5 @@
+> See **AGENTS.md** for contributor rules.
+
 # Cabana Management Platform
 
 [![CI Status](https://github.com/YOUR_ORG/cabanamgmt/workflows/CI/badge.svg)](https://github.com/YOUR_ORG/cabanamgmt/actions)
