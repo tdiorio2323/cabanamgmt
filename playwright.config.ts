@@ -1,18 +1,26 @@
-import { defineConfig, devices } from '@playwright/test';
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.test.local' });
+import { defineConfig } from "@playwright/test";
+import * as dotenv from "dotenv";
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || process.env.APP_URL || 'http://localhost:3000';
+dotenv.config({ path: ".env.test.local" });
+
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: "tests",
+  testMatch: ["**/e2e/**/*.spec.ts", "**/logout.spec.ts"],
+  retries: process.env.CI ? 1 : 0,
   use: {
     baseURL,
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    headless: true,
+    storageState: "./tests/.auth/storageState.json",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
   },
-  projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    // { name: 'iphone-13', use: { ...devices['iPhone 13'] } }, // Enable after `npx playwright install webkit`
-  ],
+  globalSetup: "./tests/global-setup.ts",
+  webServer: {
+    command: "NEXT_PUBLIC_E2E_AUTH_MODE=mock E2E_AUTH_MODE=mock PORT=3000 npm run dev",
+    url: baseURL,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+  },
 });

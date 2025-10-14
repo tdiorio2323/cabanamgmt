@@ -8,11 +8,18 @@ import { ErrorBoundary } from '@/components/system/ErrorBoundary';
 import { logger } from '@/lib/logger';
 
 export default function DashLayout({ children }: { children: React.ReactNode }) {
+  const isMockAuth = process.env.NEXT_PUBLIC_E2E_AUTH_MODE === 'mock';
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    if (isMockAuth) {
+      setAuthorized(true);
+      setLoading(false);
+      return;
+    }
+
     let mounted = true;
     let cleanup: (() => void) | undefined;
 
@@ -81,7 +88,15 @@ export default function DashLayout({ children }: { children: React.ReactNode }) 
       mounted = false;
       cleanup?.();
     };
-  }, [router]);
+  }, [router, isMockAuth]);
+
+  if (isMockAuth) {
+    return (
+      <ErrorBoundary>
+        <Shell>{children}</Shell>
+      </ErrorBoundary>
+    );
+  }
 
   if (loading) {
     return (

@@ -1,7 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { supabaseMock } from "./supabaseMock";
 
-export async function supabaseServer() {
+type ServerClient = SupabaseClient<any, any, any>;
+
+export async function supabaseServer(): Promise<ServerClient> {
+  if (process.env.E2E_AUTH_MODE === "mock") {
+    return supabaseMock.server as ServerClient;
+  }
+
   const store = await cookies();
 
   return createServerClient(
@@ -13,18 +22,13 @@ export async function supabaseServer() {
           return store.getAll();
         },
         setAll(cookiesToSet) {
-          // In Server Components (pages), we can only read cookies
-          // Cookie mutations only work in Server Actions or Route Handlers
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              store.set(name, value, options)
-            );
+            cookiesToSet.forEach(({ name, value, options }) => store.set(name, value, options));
           } catch {
             // Silently fail in read-only contexts (Server Components)
-            // This is expected behavior for getSession() calls
           }
         },
       },
-    }
-  );
+    },
+  ) as ServerClient;
 }

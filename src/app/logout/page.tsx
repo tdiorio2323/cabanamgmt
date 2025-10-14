@@ -19,7 +19,7 @@ export default function LogoutPage() {
         } else {
           toast.success("Successfully logged out");
         }
-      } catch (_err) {
+      } catch {
         toast.error("Failed to logout");
       } finally {
         // Always redirect to login, even if there's an error
@@ -35,7 +35,7 @@ export default function LogoutPage() {
 
   return (
     <main className="max-w-md mx-auto text-center space-y-4 py-12">
-      <h1 className="text-2xl font-semibold">Logging out...</h1>
+      <h1 className="text-2xl font-semibold">You are logged out</h1>
       <p className="text-sm opacity-70">Redirecting to login page...</p>
     </main>
   );

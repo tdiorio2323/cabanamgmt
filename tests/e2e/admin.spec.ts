@@ -8,12 +8,18 @@ import { test, expect } from '@playwright/test';
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 const ADMIN_EMAIL = process.env.TEST_EMAIL || process.env.ADMIN_EMAIL;
 const ADMIN_PASSWORD = process.env.TEST_PASSWORD || process.env.ADMIN_PASSWORD;
+const USE_MOCK_AUTH = process.env.E2E_AUTH_MODE === 'mock';
 
 test.describe('Admin Dashboard E2E', () => {
-  test.skip(!ADMIN_EMAIL || !ADMIN_PASSWORD, 'TEST_EMAIL/TEST_PASSWORD not configured');
+  test.skip(!USE_MOCK_AUTH && (!ADMIN_EMAIL || !ADMIN_PASSWORD), 'TEST_EMAIL/TEST_PASSWORD not configured');
 
   test.beforeEach(async ({ page }) => {
-    // Login before each test
+    if (USE_MOCK_AUTH) {
+      await page.goto(`${BASE_URL}/dashboard`);
+      await page.waitForLoadState('networkidle');
+      return;
+    }
+
     await page.goto(`${BASE_URL}/login`);
     await page.getByPlaceholder(/email/i).fill(ADMIN_EMAIL!);
     await page.getByPlaceholder(/password/i).fill(ADMIN_PASSWORD!);
@@ -150,7 +156,7 @@ test.describe('Admin Dashboard E2E', () => {
     await expect(userMenuButton).toBeVisible();
 
     // Check for notification bell
-    const notificationButton = page.getByLabel(/notification/i);
+    const notificationButton = page.getByRole('button', { name: /notifications/i });
     await expect(notificationButton).toBeVisible();
   });
 

@@ -33,7 +33,7 @@ export function Topbar({ breadcrumbs = [] }: TopbarProps) {
         router.push("/login")
         router.refresh()
       }
-    } catch (_err) {
+    } catch {
       toast.error("Failed to logout")
     }
   }
@@ -88,3 +88,5 @@ export function Topbar({ breadcrumbs = [] }: TopbarProps) {
     </header>
   )
 }
+
+export default Topbar
