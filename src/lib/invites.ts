@@ -154,7 +154,7 @@ export async function createInvite({ email, role, expiresInDays, message, actorI
   const expiresAt = new Date(Date.now() + expiresInDays * 86_400_000).toISOString();
 
   const code = generateCode();
-  
+
   const { data, error } = await supabaseAdmin
     .from('invites')
     .insert({
@@ -176,7 +176,7 @@ export async function createInvite({ email, role, expiresInDays, message, actorI
 
   // Send invitation email
   const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/invite/${token}`;
-  
+
   try {
     await sendInviteEmail({
       to: email,

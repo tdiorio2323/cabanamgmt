@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS public.rate_limits (
 );
 
 -- Index for efficient lookups
-CREATE INDEX IF NOT EXISTS rate_limits_key_created_at_idx 
+CREATE INDEX IF NOT EXISTS rate_limits_key_created_at_idx
   ON public.rate_limits (key, created_at DESC);
 
 -- RLS policies (admin-only access)

@@ -28,9 +28,9 @@ export async function POST(request: NextRequest) {
     event = stripe.webhooks.constructEvent(payload, signature, STRIPE_WEBHOOK_SECRET);
   } catch (error) {
     const message = error instanceof Error ? error.message : "invalid signature";
-    logger.error("Stripe webhook signature verification failed", { 
-      event: "stripe.webhook.invalid_signature", 
-      error: message 
+    logger.error("Stripe webhook signature verification failed", {
+      event: "stripe.webhook.invalid_signature",
+      error: message
     });
     return NextResponse.json({ error: "invalid signature" }, { status: 400 });
   }
@@ -58,8 +58,8 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        logger.info('Processing payment_intent.succeeded', { 
-          event: 'stripe.payment.succeeded', 
+        logger.info('Processing payment_intent.succeeded', {
+          event: 'stripe.payment.succeeded',
           paymentIntentId: paymentIntent.id,
           amount: paymentIntent.amount,
         });
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
         // Update booking deposit status
         const { data: booking, error: updateError } = await supabaseAdmin
           .from('bookings')
-          .update({ 
+          .update({
             deposit_status: 'paid',
             payment_intent_id: paymentIntent.id,
             deposit_paid_at: new Date().toISOString(),
@@ -77,20 +77,20 @@ export async function POST(request: NextRequest) {
           .maybeSingle();
 
         if (updateError) {
-          logger.error('Failed to update booking for succeeded payment', { 
-            event: 'stripe.payment.update_failed', 
+          logger.error('Failed to update booking for succeeded payment', {
+            event: 'stripe.payment.update_failed',
             paymentIntentId: paymentIntent.id,
             error: updateError.message,
           });
         } else if (booking) {
-          logger.info('Booking deposit marked as paid', { 
-            event: 'stripe.payment.booking_updated', 
+          logger.info('Booking deposit marked as paid', {
+            event: 'stripe.payment.booking_updated',
             bookingId: booking.id,
             paymentIntentId: paymentIntent.id,
           });
         } else {
-          logger.warn('No booking found for payment intent', { 
-            event: 'stripe.payment.no_booking', 
+          logger.warn('No booking found for payment intent', {
+            event: 'stripe.payment.no_booking',
             paymentIntentId: paymentIntent.id,
           });
         }
@@ -99,8 +99,8 @@ export async function POST(request: NextRequest) {
 
       case "payment_intent.payment_failed": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        logger.warn('Processing payment_intent.payment_failed', { 
-          event: 'stripe.payment.failed', 
+        logger.warn('Processing payment_intent.payment_failed', {
+          event: 'stripe.payment.failed',
           paymentIntentId: paymentIntent.id,
           lastError: paymentIntent.last_payment_error?.message,
         });
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
         // Update booking deposit status
         const { data: booking, error: updateError } = await supabaseAdmin
           .from('bookings')
-          .update({ 
+          .update({
             deposit_status: 'failed',
             payment_intent_id: paymentIntent.id,
           })
@@ -117,14 +117,14 @@ export async function POST(request: NextRequest) {
           .maybeSingle();
 
         if (updateError) {
-          logger.error('Failed to update booking for failed payment', { 
-            event: 'stripe.payment.update_failed', 
+          logger.error('Failed to update booking for failed payment', {
+            event: 'stripe.payment.update_failed',
             paymentIntentId: paymentIntent.id,
             error: updateError.message,
           });
         } else if (booking) {
-          logger.info('Booking deposit marked as failed', { 
-            event: 'stripe.payment.booking_updated', 
+          logger.info('Booking deposit marked as failed', {
+            event: 'stripe.payment.booking_updated',
             bookingId: booking.id,
             paymentIntentId: paymentIntent.id,
           });
@@ -139,8 +139,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    logger.error('Error processing Stripe webhook', { 
-      event: 'stripe.webhook.error', 
+    logger.error('Error processing Stripe webhook', {
+      event: 'stripe.webhook.error',
       eventId: event.id,
       type: event.type,
       error: error instanceof Error ? error.message : 'Unknown error',

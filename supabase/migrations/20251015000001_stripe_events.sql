@@ -18,12 +18,12 @@ CREATE POLICY "stripe_events_admin_all" ON public.stripe_events
   FOR ALL USING (is_admin());
 
 -- Add deposit_paid_at column to bookings if not exists
-DO $$ 
+DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns 
-    WHERE table_schema='public' 
-    AND table_name='bookings' 
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema='public'
+    AND table_name='bookings'
     AND column_name='deposit_paid_at'
   ) THEN
     ALTER TABLE public.bookings ADD COLUMN deposit_paid_at TIMESTAMPTZ;

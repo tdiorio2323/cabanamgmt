@@ -58,12 +58,12 @@ export async function POST(request: NextRequest) {
   // Rate limiting: IP-based (10 requests per hour)
   const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const ipLimit = await checkRateLimit(`resend:ip:${ip}`, 10, 60 * 60 * 1000);
-  
+
   if (!ipLimit.allowed) {
     logger.warn('Rate limit exceeded (IP)', { event: 'rate_limit.ip', ip: '[redacted]' });
     return NextResponse.json(
       { error: 'Too many requests. Try again later.' },
-      { 
+      {
         status: 429,
         headers: {
           'Retry-After': String(Math.ceil((ipLimit.reset! - Date.now()) / 1000)),
@@ -74,12 +74,12 @@ export async function POST(request: NextRequest) {
 
   // Rate limiting: Per-invite (3 resends per 15 minutes)
   const inviteLimit = await checkRateLimit(`resend:invite:${parsed.data.email}`, 3, 15 * 60 * 1000);
-  
+
   if (!inviteLimit.allowed) {
     logger.warn('Rate limit exceeded (invite)', { event: 'rate_limit.invite', email: '[redacted]' });
     return NextResponse.json(
       { error: 'Too many resend attempts for this email. Try again later.' },
-      { 
+      {
         status: 429,
         headers: {
           'Retry-After': String(Math.ceil((inviteLimit.reset! - Date.now()) / 1000)),
