@@ -8,7 +8,7 @@ Creator booking platform MVP for Cabana Management Group. Premium creator manage
 
 **Tech Stack**: Next.js 15 (App Router) + TypeScript + Tailwind CSS 4 + shadcn/ui + Stripe + Supabase + Framer Motion
 
-**Current Status (October 9, 2025): ~75% Complete**
+**Current Status (October 15, 2025): ~75% Complete**
 
 - ✅ Core infrastructure, database, auth, payments, UI/UX complete
 - ⏳ External service integrations pending (Onfido/Veriff, Checkr/Certn, DocuSign)
@@ -34,10 +34,12 @@ The following improvements have been implemented without touching API routes or 
 - **Accessibility**: Skip-to-content link, focus-visible styles, SR-only utilities, ARIA labels
 - **TypeScript**: Strict mode enabled with `noUncheckedIndexedAccess`, all lint errors fixed
 - **CI/CD**: GitHub Actions workflow for lint, typecheck, and build verification
-- **Repo Hygiene**: `.editorconfig`, `.nvmrc`, updated `.gitignore`, `verify:fast` script
+- **Repo Hygiene**: `.editorconfig`, `.nvmrc`, updated `.gitignore`, `verify:fast` script, Husky pre-commit hooks
 - **Documentation**: Updated README.md with badges and quick start, added CONTRIBUTING.md
 
 ### Non-API Development Workflow
+
+**Husky Pre-Commit Hooks**: The repository now includes Husky hooks that automatically run `pnpm run verify:fast` before commits to catch lint and type errors early.
 
 For frontend, UI, and infrastructure work (no API/vendor changes):
 
@@ -352,8 +354,13 @@ VIP system in `supabase/migrations/0003_vip.sql`:
 
 Invitation system (newer migrations):
 
-- Additional invitation/invite tables for enhanced invitation tracking
-- See `supabase/migrations/0005_invites.sql` and `0006_invitations.sql` for schema details
+- **Invites vs VIP Codes**: The platform has two distinct access control systems:
+  - **VIP Codes** (`/vip/[code]`) - Public-facing promotional codes for external creator signups with usage limits and expiration
+  - **Invites** (`/invite/[code]`) - Internal invitation system for direct admin-to-creator onboarding with role-based access
+- `invites` table - Admin-generated invitations with email, role, expiration, and acceptance tracking
+- Helper functions in `src/lib/invites.ts` for invitation management
+- Dashboard UI at `/dashboard/invite` for creating and managing invitations
+- See `supabase/migrations/0005_invites.sql`, `0006_invitations.sql`, and `20251013171500_invites_extend.sql` for schema details
 
 ### Supabase Client Files
 
@@ -379,6 +386,7 @@ Multiple Supabase client patterns for different contexts:
 - `/api/invites/list` - List invitations (admin-protected)
 - `/api/invites/accept` - Accept invitation
 - `/api/invites/revoke` - Revoke invitation (admin-protected)
+- `/api/invites/resend` - Resend invitation email (admin-protected)
 - `/api/invites/validate` - Validate invitation code (public)
 - `/api/stripe/create-deposit` - Create Stripe PaymentIntent for deposits
 
@@ -449,6 +457,7 @@ Applied via CSS variables in `src/app/layout.tsx`
 **Data Management:**
 - `store.ts` - Zustand global state for booking flow
 - `schema.ts` - Zod validation schemas for forms
+- `invites.ts` - Invitation management helper functions
 
 **Supabase Clients:**
 - `supabase.ts` - Legacy browser client
@@ -459,6 +468,18 @@ Applied via CSS variables in `src/app/layout.tsx`
 **Payments & Security:**
 - `stripe.ts` - Stripe client configuration
 - `crypto.ts` - Deterministic VIP code generation
+
+**Logging:**
+- `logger.ts` - Production-safe logging utility (only logs in development)
+  ```typescript
+  import { logger } from '@/lib/logger';
+
+  // Usage examples
+  logger.log('Debug info:', data);
+  logger.error('Error occurred:', error);
+  logger.warn('Warning:', message);
+  logger.info('Info:', details);
+  ```
 
 **Fonts:**
 - `fonts.ts` - Custom Google Fonts configuration (Manrope, Cinzel, Ballet, Inter)
