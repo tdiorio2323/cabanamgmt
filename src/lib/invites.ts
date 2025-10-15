@@ -1,6 +1,8 @@
 import crypto from 'node:crypto';
 
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { sendInviteEmail } from '@/lib/email';
+import { logger } from '@/lib/logger';
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const DEFAULT_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -73,6 +75,21 @@ export async function resendInvite({ email, actorId }: ResendInviteArgs): Promis
 
   if (error) throw error;
 
+  // Send invitation email
+  const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/invite/${data.code}`;
+  try {
+    await sendInviteEmail({
+      to: email,
+      code: data.code,
+      inviteUrl,
+      role,
+    });
+    logger.info('Invite resent successfully', { event: 'invite.resend', inviteId: data.id, to: '[redacted]' });
+  } catch (emailError) {
+    logger.error('Failed to send invite email', { event: 'invite.resend.email_failed', inviteId: data.id, error: emailError });
+    // Don't fail the whole operation if email fails - invite is still created
+  }
+
   return { id: data.id, code: data.code };
 }
 
@@ -136,10 +153,12 @@ export async function createInvite({ email, role, expiresInDays, message, actorI
   const token = crypto.randomBytes(24).toString('hex');
   const expiresAt = new Date(Date.now() + expiresInDays * 86_400_000).toISOString();
 
+  const code = generateCode();
+  
   const { data, error } = await supabaseAdmin
     .from('invites')
     .insert({
-      code: generateCode(),
+      code,
       email,
       role: dbRole,
       status: 'pending',
@@ -154,6 +173,22 @@ export async function createInvite({ email, role, expiresInDays, message, actorI
     .single();
 
   if (error) throw error;
+
+  // Send invitation email
+  const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/invite/${token}`;
+  
+  try {
+    await sendInviteEmail({
+      to: email,
+      code,
+      inviteUrl,
+      role: dbRole,
+    });
+    logger.info('Invite created and sent', { event: 'invite.create', inviteId: data.id, to: '[redacted]' });
+  } catch (emailError) {
+    logger.error('Failed to send invite email', { event: 'invite.create.email_failed', inviteId: data.id, error: emailError });
+    // Don't fail the whole operation if email fails - invite is still created
+  }
 
   return { id: data.id, token };
 }
