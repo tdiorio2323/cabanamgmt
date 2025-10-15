@@ -261,6 +261,21 @@ export type Database = {
         }
         Relationships: []
       }
+      kv_store_09ebf32b: {
+        Row: {
+          key: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       kv_store_1f678723: {
         Row: {
           key: string
@@ -577,7 +592,13 @@ export type Database = {
               p_role?: string
               p_uses?: number
             }
-        Returns: string
+        Returns: {
+          code: string
+          expires_at: string
+          role: string
+          uses_allowed: number
+          uses_remaining: number
+        }[]
       }
       redeem_vip_code: {
         Args: { p_code: string; p_ip?: unknown; p_user_agent?: string }

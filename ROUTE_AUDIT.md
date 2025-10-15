@@ -17,6 +17,9 @@
 | `src/app/login/page.tsx` | ✅ |
 | `src/app/auth/callback/route.ts` | ✅ |
 | `src/app/(dash)/dashboard/page.tsx` | ✅ |
+| `src/app/(dash)/invites/resend/page.tsx` | ✅ |
+| `src/app/(dash)/invites/revoke/page.tsx` | ✅ |
+| `src/app/(dash)/invites/new/page.tsx` | ✅ |
 
 ## API
 | Path | Status |
@@ -32,6 +35,8 @@
 | `src/app/api/interview/schedule/route.ts` | ✅ |
 | `src/app/api/users/create/route.ts` | ✅ |
 | `src/app/api/db/health/route.ts` | ✅ |
+| `src/app/api/invites/resend/route.ts` | ✅ |
+| `src/app/api/invites/revoke/route.ts` | ✅ |
 
 ## Components
 | Path | Status |

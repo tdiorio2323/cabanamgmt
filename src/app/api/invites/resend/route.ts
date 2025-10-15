@@ -3,19 +3,14 @@ import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import { z } from 'zod';
 
-import { revokeInvite } from '@/lib/invites';
+import { resendInvite } from '@/lib/invites';
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-const BodySchema = z
-  .object({
-    id: z.string().uuid().optional(),
-    email: z.string().email().optional(),
-  })
-  .refine((value) => Boolean(value.id || value.email), {
-    message: 'Provide id or email',
-  });
+const BodySchema = z.object({
+  email: z.string().email(),
+});
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies();
@@ -59,15 +54,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const count = await revokeInvite(parsed.data);
+    const invite = await resendInvite({
+      email: parsed.data.email,
+      actorId: session.user.id ?? null,
+    });
 
-    if (!count) {
-      return NextResponse.json({ error: 'No pending invite found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ ok: true, count });
+    return NextResponse.json({ ok: true, inviteId: invite.id, code: invite.code });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    const status = /rate/i.test(message) ? 429 : 500;
+    return NextResponse.json({ error: message }, { status });
   }
 }

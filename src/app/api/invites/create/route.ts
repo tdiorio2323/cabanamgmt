@@ -1,58 +1,71 @@
-import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { createServerClient } from '@supabase/ssr'
-import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
+import { z } from 'zod';
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const service = process.env.SUPABASE_SERVICE_ROLE_KEY! // server-only
+import { createInvite } from '@/lib/invites';
 
-export async function POST(req: Request) {
-    const body = await req.json().catch(() => ({}))
-    const { email = null, role = 'client', uses = 1, days = 30, note = null, code: rawCode } = body
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-    // session (to check admin)
-    const cookieStore = await cookies()
-    const supaSSR = createServerClient(url, anon, {
-        cookies: {
-            getAll() { return cookieStore.getAll() },
-            setAll(cookiesToSet) {
-                cookiesToSet.forEach(({ name, value, options }) => {
-                    cookieStore.set(name, value, options)
-                })
-            }
-        }
-    })
-    const { data: { session } } = await supaSSR.auth.getSession()
-    const sessionEmail = session?.user?.email ?? null
+const BodySchema = z.object({
+  email: z.string().email(),
+  role: z.enum(['member', 'staff', 'admin']).default('member'),
+  expiresInDays: z.number().int().min(1).max(60).default(7),
+  message: z.string().max(500).optional(),
+});
 
-    if (!sessionEmail) return NextResponse.json({ error: 'not_authenticated' }, { status: 401 })
+export async function POST(request: NextRequest) {
+  const cookieStore = await cookies();
 
-    const { data: adminOK } = await supaSSR
-        .from('admin_emails').select('email').eq('email', sessionEmail).maybeSingle()
+  const supabase = createServerClient(url, anon, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          cookieStore.set(name, value, options);
+        });
+      },
+    },
+  });
 
-    if (!adminOK) return NextResponse.json({ error: 'not_admin' }, { status: 403 })
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-    // write with service role
-    const svc = createClient(url, service, { auth: { persistSession: false } })
-    const upper = (s: string) => s.toUpperCase().trim()
-    const code = rawCode?.trim()
-        ? upper(rawCode)
-        : `CABANA-${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Math.random().toString(16).slice(2, 6).toUpperCase()}`
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'not_authenticated' }, { status: 401 });
+  }
 
-    const daysInt = Math.max(1, parseInt(String(days), 10) || 30)
-    const usesInt = Math.max(1, parseInt(String(uses), 10) || 1)
-    const expires_at = new Date(Date.now() + daysInt * 86400000).toISOString()
+  const { data: adminEmail } = await supabase
+    .from('admin_emails')
+    .select('email')
+    .eq('email', session.user.email)
+    .maybeSingle();
 
-    const { data: me } = await supaSSR.auth.getUser()
-    const created_by = me.user?.id ?? null
+  if (!adminEmail) {
+    return NextResponse.json({ error: 'not_admin' }, { status: 403 });
+  }
 
-    const { data, error } = await svc
-        .from('invites')
-        .insert({ code, email, role, uses_allowed: usesInt, uses_remaining: usesInt, expires_at, note, created_by })
-        .select('*')
-        .single()
+  const payload = await request.json().catch(() => null);
+  const parsed = BodySchema.safeParse(payload);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-    return NextResponse.json({ invite: data })
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
+  }
+
+  try {
+    const invite = await createInvite({
+      ...parsed.data,
+      actorId: session.user.id ?? '',
+    });
+
+    return NextResponse.json({ ok: true, id: invite.id });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Internal error';
+    const status = /duplicate|exists/i.test(message) ? 409 : 500;
+    return NextResponse.json({ error: message }, { status });
+  }
 }

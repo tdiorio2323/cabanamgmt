@@ -7,7 +7,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run",
+    "test": "vitest run --workspace=vitest.workspace.ts",
     "typecheck": "tsc --noEmit",
     "audit": "node scripts/project-audit.mjs",
     "audit:routes": "node scripts/audit-and-scaffold.mjs",
