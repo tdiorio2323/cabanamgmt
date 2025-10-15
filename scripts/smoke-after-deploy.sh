@@ -50,8 +50,8 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "Health Checks"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-test_endpoint "/api/health" ".ok == true" "Application health" false
-test_endpoint "/api/db/health" ".ok == true" "Database health" false
+test_endpoint "/api/health" '.status == "ok"' "Application health" false
+test_endpoint "/api/db/health" '.status == "ok" or .ok == true' "Database health" false
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
