@@ -4,7 +4,7 @@
 
 ### xs/sm Breakpoints (< 640px)
 - [ ] Dashboard navigation sidebar: Convert to mobile drawer/sheet
-- [ ] Dashboard tables: Add horizontal scroll or card view alternative  
+- [ ] Dashboard tables: Add horizontal scroll or card view alternative
 - [ ] Stepper component: Stack vertically on mobile
 - [ ] Form inputs: Increase touch target size to 44x44px minimum
 - [ ] GlassCard components: Reduce padding on mobile

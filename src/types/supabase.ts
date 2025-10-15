@@ -89,6 +89,7 @@ export type Database = {
       bookings: {
         Row: {
           created_at: string | null
+          deposit_paid_at: string | null
           deposit_status: Database["public"]["Enums"]["deposit_status"] | null
           id: string
           interview_status:
@@ -103,6 +104,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          deposit_paid_at?: string | null
           deposit_status?: Database["public"]["Enums"]["deposit_status"] | null
           id?: string
           interview_status?:
@@ -117,6 +119,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          deposit_paid_at?: string | null
           deposit_status?: Database["public"]["Enums"]["deposit_status"] | null
           id?: string
           interview_status?:
@@ -232,6 +235,8 @@ export type Database = {
           id: string
           note: string | null
           role: string
+          status: string
+          token: string | null
           uses_allowed: number
           uses_remaining: number
         }
@@ -244,6 +249,8 @@ export type Database = {
           id?: string
           note?: string | null
           role: string
+          status?: string
+          token?: string | null
           uses_allowed?: number
           uses_remaining?: number
         }
@@ -256,6 +263,8 @@ export type Database = {
           id?: string
           note?: string | null
           role?: string
+          status?: string
+          token?: string | null
           uses_allowed?: number
           uses_remaining?: number
         }
@@ -308,31 +317,19 @@ export type Database = {
       }
       rate_limits: {
         Row: {
-          action: string
-          attempts: number | null
-          blocked_until: string | null
-          created_at: string | null
+          created_at: string
           id: string
-          identifier: string
-          window_start: string | null
+          key: string
         }
         Insert: {
-          action: string
-          attempts?: number | null
-          blocked_until?: string | null
-          created_at?: string | null
+          created_at?: string
           id?: string
-          identifier: string
-          window_start?: string | null
+          key: string
         }
         Update: {
-          action?: string
-          attempts?: number | null
-          blocked_until?: string | null
-          created_at?: string | null
+          created_at?: string
           id?: string
-          identifier?: string
-          window_start?: string | null
+          key?: string
         }
         Relationships: []
       }
@@ -351,6 +348,30 @@ export type Database = {
           created_at?: string | null
           email?: string
           id?: number
+        }
+        Relationships: []
+      }
+      stripe_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          processed_at: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          processed_at?: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          processed_at?: string
+          type?: string
         }
         Relationships: []
       }
@@ -524,6 +545,33 @@ export type Database = {
           instagram?: string | null
           name?: string | null
           ref_code?: string | null
+        }
+        Relationships: []
+      }
+      webhook_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          idempotency_key: string
+          processed_at: string
+          provider: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          idempotency_key: string
+          processed_at?: string
+          provider: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          idempotency_key?: string
+          processed_at?: string
+          provider?: string
         }
         Relationships: []
       }

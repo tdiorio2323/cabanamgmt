@@ -1,12 +1,15 @@
+-- Drop existing rate_limits table if schema doesn't match
+DROP TABLE IF EXISTS public.rate_limits CASCADE;
+
 -- Create rate_limits table for API rate limiting
-CREATE TABLE IF NOT EXISTS public.rate_limits (
+CREATE TABLE public.rate_limits (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   key TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Index for efficient lookups
-CREATE INDEX IF NOT EXISTS rate_limits_key_created_at_idx
+CREATE INDEX rate_limits_key_created_at_idx
   ON public.rate_limits (key, created_at DESC);
 
 -- RLS policies (admin-only access)
