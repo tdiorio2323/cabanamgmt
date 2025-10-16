@@ -19,8 +19,28 @@ Creator booking platform MVP for Cabana Management Group. Premium creator manage
 - `docs/architecture-diagram.md` - Complete system architecture with business context and compliance framework
 - `docs/session-summary-2025-10-06.md` - Comprehensive project handoff and status summary
 - `INTEGRATIONS.md` - Detailed vendor integration specifications (Stripe, Onfido/Veriff, Checkr/Certn, DocuSign)
-- `AGENTS.md` - Repository guidelines including module organization, coding style, testing, and PR conventions
+- `AGENTS.md` - Repository guidelines including module organization, coding style, testing, and PR conventions (see also: [CONTRIBUTING.md](#commit--pr-guidelines))
 - `docs/TESTING.md` - Playwright testing setup and troubleshooting guide
+
+## Quick Reference - Common Workflows
+
+**New to the project?**
+→ Jump to [First-Time Setup Checklist](#first-time-setup-checklist)
+
+**Making frontend/UI changes?**
+→ See [Non-API Development Workflow](#non-api-development-workflow) for verification commands
+
+**Debugging issues?**
+→ Check [Debug utilities](#additional-routes) and [Common Issues](#common-issues)
+
+**Working with database?**
+→ See [Database Migrations](#database-migrations) and [Database Type Generation](#database-type-generation)
+
+**Running tests?**
+→ See [Testing Commands](#testing-commands) for Playwright E2E and [Testing & QA](#testing--qa) for Vitest unit tests
+
+**Understanding architecture?**
+→ Review [Three-Track Application Structure](#three-track-application-structure) and [State Management](#state-management)
 
 ## Recent Updates (October 11, 2025)
 
@@ -39,17 +59,30 @@ The following improvements have been implemented without touching API routes or 
 
 ### Non-API Development Workflow
 
-**Husky Pre-Commit Hooks**: The repository now includes Husky hooks that automatically run `pnpm run verify:fast` before commits to catch lint and type errors early.
+**Husky Pre-Commit Hooks**: The repository includes Husky hooks that automatically run `pnpm run verify:fast` before every commit. This catches lint and type errors early before they enter the codebase.
+
+**What happens on commit:**
+1. Git stages your changes with `git add`
+2. Husky pre-commit hook triggers automatically
+3. Runs `pnpm run verify:fast` which executes:
+   - `pnpm run typecheck` - TypeScript compilation check (no emit)
+   - `pnpm run lint` - ESLint validation
+4. If either check fails, commit is **blocked** and you must fix errors
+5. If both pass, commit proceeds normally
 
 For frontend, UI, and infrastructure work (no API/vendor changes):
 
 ```bash
-# Quick verification before committing
+# Quick verification before committing (runs automatically via Husky)
 pnpm run verify:fast  # Runs typecheck + lint
 
-# Full verification
+# Full verification suite (recommended before PR)
 pnpm run build        # Production build test
-pnpm run verify:all   # Route audit + smoke tests
+pnpm run verify:all   # Route audit + smoke tests (comprehensive)
+pnpm run ci:verify    # Complete CI simulation (verify:fast + build + unit tests)
+
+# Bundle size analysis
+pnpm run analyze      # Analyze production bundle with @next/bundle-analyzer
 ```
 
 ## Final Non-API Audit (October 2025)
@@ -220,8 +253,18 @@ pnpm run build:full   # Run typecheck + build (comprehensive pre-release check)
 
 ### Testing Commands
 
+**Vitest Unit Tests** (component and utility tests):
 ```bash
-# Playwright end-to-end tests (requires .env.test.local configuration)
+pnpm run test            # Run all Vitest unit tests in workspace
+pnpm run test -- --watch # Run tests in watch mode during development
+pnpm run test -- --ui    # Run tests with Vitest UI (browser-based)
+
+# Unit test files are colocated with source: src/**/*.test.{ts,tsx}
+# Configuration: vitest.config.ts and vitest.workspace.ts
+```
+
+**Playwright E2E Tests** (full application flows, requires .env.test.local):
+```bash
 pnpm run test:auth       # Run authentication smoke tests
 pnpm run test:smoke      # Run generated smoke tests
 pnpm run smoke           # Generate smoke test specs (tsx scripts/smoke.ts)
@@ -231,8 +274,13 @@ pnpm run test:all        # Run all Playwright tests
 pnpm run test:ui         # Run tests with visual UI (great for debugging)
 pnpm run verify:all      # Run route audit + smoke tests (comprehensive validation)
 
-# See docs/TESTING.md for detailed setup and troubleshooting
+# See docs/TESTING.md for detailed Playwright setup and troubleshooting
 ```
+
+**Testing Strategy:**
+- **Unit tests (Vitest)**: Component logic, utility functions, hooks - fast, no network/DB
+- **E2E tests (Playwright)**: Full user flows, auth, booking wizard - requires running dev server
+- **Smoke tests**: Auto-generated from route structure to ensure all pages load
 
 ### Audit & Utility Scripts
 
@@ -582,9 +630,17 @@ Playwright end-to-end tests are configured for authentication and smoke testing.
 
 ## Commit & PR Guidelines
 
+**See also**: `AGENTS.md` for repository-level guidelines and `CONTRIBUTING.md` for detailed contributor workflow.
+
+**Quick Guidelines:**
 - Commit message format: "Type: short summary" (keep each commit independently revertible)
 - PRs must include: problem statement, solution summary, screenshots for UI changes, Supabase migration impacts, tracking issue links
 - Note any new environment variables for deploy preview configuration
+
+**When to reference which document:**
+- **AGENTS.md** - Quick reference for module organization, coding style, naming conventions, and testing patterns (for AI agents and developers)
+- **CONTRIBUTING.md** - Complete onboarding guide with setup instructions, commit conventions, branch naming, PR process, and code of conduct (for external contributors)
+- **CLAUDE.md** (this file) - Comprehensive architecture, commands, database setup, and implementation notes (for AI pair programming and deep technical context)
 
 ## First-Time Setup Checklist
 
