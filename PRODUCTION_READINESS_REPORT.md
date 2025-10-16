@@ -1,5 +1,5 @@
 # Production Readiness Report
-**Generated**: October 15, 2025  
+**Generated**: October 15, 2025
 **Audit Tool**: `node scripts/production-readiness-audit.mjs`
 
 ---
@@ -10,7 +10,7 @@
 
 ```
 ✅ Implemented:  17/23 API routes (74%)
-⚠️  Vendor SDKs:   1/5 installed (20%)  
+⚠️  Vendor SDKs:   1/5 installed (20%)
 ✅ Tests:         16 test files
 ✅ Build:         Passing all gates
 ⚠️  Security:     Partial (headers ✅, rate limit ⚠️, monitoring ✗)
@@ -62,7 +62,7 @@ pnpm add @onfido/api docusign-esign
 
 **Missing**: `supabase/functions/` directory
 
-**Impact**: 
+**Impact**:
 - No PII cleanup CRON job (GDPR/CCPA violation risk: €20M fines)
 - No automated data retention enforcement
 
@@ -78,7 +78,7 @@ mkdir -p supabase/functions/cleanup-pii
 
 **Issue**: Rate limiting implemented in `src/lib/rateLimit.ts` but NOT called from middleware.
 
-**Current**: Only `/api/invites/resend` has rate limiting  
+**Current**: Only `/api/invites/resend` has rate limiting
 **Needed**: All public endpoints need protection
 
 **Impact**: DDoS vulnerable, credential stuffing attacks possible
@@ -200,7 +200,7 @@ npx @sentry/wizard@latest -i nextjs
 # Add: docusign-esign SDK integration
 
 # 2. Implement interview scheduling
-# Edit: src/app/api/interview/schedule/route.ts  
+# Edit: src/app/api/interview/schedule/route.ts
 # Add: Calendly API integration or Google Calendar
 ```
 
@@ -265,7 +265,7 @@ npx @sentry/wizard@latest -i nextjs
 - ❌ Contract signing (step 6 of wizard)
 - ❌ Interview scheduling (step 5 of wizard)
 
-**Effective Completion**: **Steps 1, 3, 7** of booking wizard functional  
+**Effective Completion**: **Steps 1, 3, 7** of booking wizard functional
 **Broken Steps**: **2, 4, 5, 6** (vendor integrations missing)
 
 ---

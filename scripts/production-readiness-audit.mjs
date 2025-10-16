@@ -35,7 +35,7 @@ function high(msg, file = null) {
   if (file) console.log(`   File: ${file}`);
 }
 
-function optional(msg) {
+function _optional(msg) {
   optionalEnhancements.push(msg);
   console.log(`${GREEN}🟢 OPTIONAL:${RESET} ${msg}`);
 }
@@ -147,7 +147,7 @@ const requiredVars = [
   'MAIL_FROM',
 ];
 
-const optionalVars = [
+const _optionalVars = [
   'VERIFF_WEBHOOK_SECRET',
   'ONFIDO_WEBHOOK_SECRET',
   'CHECKR_WEBHOOK_SECRET',
