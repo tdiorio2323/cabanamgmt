@@ -26,9 +26,9 @@ import {
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Invite Codes", href: "/dashboard/invite", icon: Mail },
-  { name: "Create Invite", href: "/invites/new", icon: Mail },
-  { name: "Resend Invite", href: "/invites/resend", icon: Mail },
-  { name: "Revoke Invite", href: "/invites/revoke", icon: Mail },
+  { name: "Create Invite", href: "/dashboard/invites/new", icon: Mail },
+  { name: "Resend Invite", href: "/dashboard/invites/resend", icon: Mail },
+  { name: "Revoke Invite", href: "/dashboard/invites/revoke", icon: Mail },
   { name: "Users", href: "/dashboard/users", icon: Users },
   { name: "Bookings", href: "/dashboard/bookings", icon: Calendar },
   { name: "Vetting", href: "/dashboard/vetting", icon: UserCheck },

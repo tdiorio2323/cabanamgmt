@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import GlassCard from "@/components/ui/GlassCard";
@@ -89,6 +89,15 @@ export default function MediaLibraryPage() {
   const [folderFilter, setFolderFilter] = useState("all");
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadedObjectUrls = useRef<string[]>([]);
+
+  useEffect(() => {
+    const urls = uploadedObjectUrls.current;
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
 
   useEffect(() => {
     fetchMediaLibrary();
@@ -273,6 +282,136 @@ export default function MediaLibraryPage() {
     }
   };
 
+  const determineMediaType = (file: File): MediaItem['type'] => {
+    if (file.type.startsWith('image/')) return 'image';
+    if (file.type.startsWith('video/')) return 'video';
+    if (file.type.startsWith('audio/')) return 'audio';
+    return 'document';
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const objectUrl = URL.createObjectURL(file);
+    uploadedObjectUrls.current.push(objectUrl);
+
+    const type = determineMediaType(file);
+    const format = file.name.split('.').pop()?.toLowerCase() || file.type.split('/').pop() || 'file';
+    const nowIso = new Date().toISOString();
+    const selectedFolderId = folderFilter !== 'all' ? folderFilter : undefined;
+    const selectedFolder = selectedFolderId ? folders.find(folder => folder.id === selectedFolderId) : undefined;
+
+    const newItem: MediaItem = {
+      id: `upload_${crypto.randomUUID()}`,
+      name: file.name,
+      type,
+      format,
+      size: file.size,
+      url: objectUrl,
+      thumbnail_url: type === 'image' ? objectUrl : undefined,
+      folder_id: selectedFolderId,
+      folder_name: selectedFolder?.name,
+      uploaded_by: 'local_user',
+      uploaded_by_name: 'You',
+      uploaded_at: nowIso,
+      last_accessed: nowIso,
+      view_count: 0,
+      download_count: 0,
+      like_count: 0,
+      comment_count: 0,
+      tags: [],
+      status: 'processing',
+      visibility: 'private',
+      featured: false,
+      created_at: nowIso,
+      usage_rights: 'restricted',
+    };
+
+    setMediaItems((previous) => [newItem, ...previous]);
+
+    if (selectedFolderId) {
+      setFolders((previous) =>
+        previous.map(folder =>
+          folder.id === selectedFolderId
+            ? {
+                ...folder,
+                item_count: folder.item_count + 1,
+                total_size: folder.total_size + file.size,
+              }
+            : folder,
+        ),
+      );
+    }
+
+    toast.success(`Queued ${file.name} for upload`);
+    event.target.value = '';
+  };
+
+  const handleNewFolder = () => {
+    const name = window.prompt('Folder name?');
+    if (!name) return;
+
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    const nowIso = new Date().toISOString();
+    const newFolder: MediaFolder = {
+      id: `folder_${crypto.randomUUID()}`,
+      name: trimmed,
+      description: '',
+      item_count: 0,
+      total_size: 0,
+      created_at: nowIso,
+      created_by: 'local_user',
+      visibility: 'private',
+    };
+
+    setFolders((previous) => [newFolder, ...previous]);
+    setFolderFilter(newFolder.id);
+    toast.success(`Created folder "${trimmed}"`);
+  };
+
+  const handleDownload = (item: MediaItem) => {
+    if (!item.url) {
+      toast.error('Download unavailable for this asset');
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.href = item.url;
+    link.download = item.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`Downloading ${item.name}`);
+  };
+
+  const handleShare = async (item: MediaItem) => {
+    const shareUrl = `${window.location.origin}/media/${item.id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: item.name, url: shareUrl });
+        toast.success('Share dialog opened');
+        return;
+      } catch {
+        // fall back to clipboard
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Share link copied to clipboard');
+    } catch {
+      toast.error('Unable to copy share link');
+    }
+  };
+
   const formatFileSize = (bytes: number) => {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     if (bytes === 0) return '0 Bytes';
@@ -347,6 +486,13 @@ export default function MediaLibraryPage() {
 
   return (
     <div className="space-y-6">
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
+        onChange={handleFileChange}
+      />
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -356,11 +502,19 @@ export default function MediaLibraryPage() {
           <p className="text-white/60 mt-2">Manage photos, videos, audio, and documents</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="liquid-btn px-4 py-2 rounded-lg flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleUploadClick}
+            className="liquid-btn px-4 py-2 rounded-lg flex items-center gap-2"
+          >
             <Upload className="w-4 h-4" />
             Upload Media
           </button>
-          <button className="frosted-input px-4 py-2 rounded-lg flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleNewFolder}
+            className="frosted-input px-4 py-2 rounded-lg flex items-center gap-2"
+          >
             <Plus className="w-4 h-4" />
             New Folder
           </button>
@@ -607,15 +761,24 @@ export default function MediaLibraryPage() {
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2">
                     <button
+                      type="button"
                       onClick={() => setPreviewItem(item)}
                       className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
                     >
                       <Eye className="w-5 h-5 text-white" />
                     </button>
-                    <button className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                    <button
+                      type="button"
+                      onClick={() => handleDownload(item)}
+                      className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                    >
                       <Download className="w-5 h-5 text-white" />
                     </button>
-                    <button className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                    <button
+                      type="button"
+                      onClick={() => handleShare(item)}
+                      className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                    >
                       <Share className="w-5 h-5 text-white" />
                     </button>
                   </div>
@@ -745,6 +908,7 @@ export default function MediaLibraryPage() {
                     <td className="py-4 px-2 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
+                          type="button"
                           onClick={() => setPreviewItem(item)}
                           className="p-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 transition-colors text-blue-400"
                           title="Preview"
@@ -752,12 +916,16 @@ export default function MediaLibraryPage() {
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
+                          type="button"
+                          onClick={() => handleDownload(item)}
                           className="p-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 transition-colors text-green-400"
                           title="Download"
                         >
                           <Download className="w-4 h-4" />
                         </button>
                         <button
+                          type="button"
+                          onClick={() => handleShare(item)}
                           className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
                           title="Share"
                         >
@@ -863,11 +1031,19 @@ export default function MediaLibraryPage() {
                     ))}
                   </div>
                   <div className="flex gap-3 pt-4">
-                    <button className="liquid-btn px-4 py-2 rounded-lg flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => previewItem && handleDownload(previewItem)}
+                      className="liquid-btn px-4 py-2 rounded-lg flex items-center gap-2"
+                    >
                       <Download className="w-4 h-4" />
                       Download
                     </button>
-                    <button className="frosted-input px-4 py-2 rounded-lg flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => previewItem && handleShare(previewItem)}
+                      className="frosted-input px-4 py-2 rounded-lg flex items-center gap-2"
+                    >
                       <Share className="w-4 h-4" />
                       Share
                     </button>
