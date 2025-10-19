@@ -35,11 +35,6 @@ function high(msg, file = null) {
   if (file) console.log(`   File: ${file}`);
 }
 
-function _optional(msg) {
-  optionalEnhancements.push(msg);
-  console.log(`${GREEN}🟢 OPTIONAL:${RESET} ${msg}`);
-}
-
 function success(msg) {
   console.log(`${GREEN}✓${RESET} ${msg}`);
 }
@@ -145,14 +140,6 @@ const requiredVars = [
   'STRIPE_SECRET_KEY',
   'RESEND_API_KEY',
   'MAIL_FROM',
-];
-
-const _optionalVars = [
-  'VERIFF_WEBHOOK_SECRET',
-  'ONFIDO_WEBHOOK_SECRET',
-  'CHECKR_WEBHOOK_SECRET',
-  'DOCUSIGN_CONNECT_KEY',
-  'SENTRY_DSN',
 ];
 
 requiredVars.forEach(v => {
@@ -307,4 +294,3 @@ if (criticalIssues.length === 0 && highPriorityIssues.length === 0) {
   console.log('\nRun with --verbose for detailed recommendations\n');
   process.exit(1);
 }
-
