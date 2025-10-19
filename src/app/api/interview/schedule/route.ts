@@ -1,6 +1,3 @@
-import { NextResponse } from "next/server";
-
 export async function POST() {
-  // TODO: book via Calendly/Google API
-  return NextResponse.json({ ok: true });
+  return new Response('Not Implemented', { status: 501 });
 }
