@@ -6,7 +6,25 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      {
+        source: '/invites/new',
+        destination: '/dashboard/invites/new',
+        permanent: true,
+      },
+      {
+        source: '/invites/resend',
+        destination: '/dashboard/invites/resend',
+        permanent: true,
+      },
+      {
+        source: '/invites/revoke',
+        destination: '/dashboard/invites/revoke',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withBundleAnalyzer(nextConfig);
