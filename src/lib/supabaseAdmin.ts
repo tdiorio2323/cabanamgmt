@@ -5,17 +5,20 @@ import { supabaseMock } from "./supabaseMock";
 
 type AdminClient = SupabaseClient<any, any, any>;
 
-if (typeof window !== "undefined") {
+const isTestEnv =
+  typeof process !== "undefined" && (process.env.NODE_ENV === "test" || process.env.VITEST_WORKER_ID !== undefined);
+
+if (typeof window !== "undefined" && !isTestEnv) {
   throw new Error("supabaseAdmin is server-only. Import it from server contexts only.");
 }
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const isMock = process.env.E2E_AUTH_MODE === "mock";
+const shouldMock = isTestEnv || process.env.E2E_AUTH_MODE === "mock";
 
 let client: AdminClient;
 
-if ((!url || !serviceKey) && isMock) {
+if (shouldMock) {
   client = supabaseMock.admin;
 } else {
   if (!url || !serviceKey) {
