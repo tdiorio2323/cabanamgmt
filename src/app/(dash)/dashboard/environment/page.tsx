@@ -458,10 +458,8 @@ export default function EnvironmentPage() {
     if (!acc[envVar.category]) {
       acc[envVar.category] = [];
     }
-    const category = acc[envVar.category];
-    if (category) {
-      category.push(envVar);
-    }
+    // Safe to use ! since we just created the array above
+    acc[envVar.category]!.push(envVar);
     return acc;
   }, {} as Record<string, EnvironmentVariable[]>);
 

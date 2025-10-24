@@ -8,6 +8,7 @@ export const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
+      // unsafe-eval required for Stripe.js - consider nonce-based CSP in future
       "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
@@ -37,10 +38,7 @@ export const securityHeaders = [
     key: 'X-Content-Type-Options',
     value: 'nosniff',
   },
-  {
-    key: 'X-XSS-Protection',
-    value: '1; mode=block',
-  },
+  // X-XSS-Protection header removed - deprecated in modern browsers and can introduce vulnerabilities
   {
     key: 'Referrer-Policy',
     value: 'strict-origin-when-cross-origin',

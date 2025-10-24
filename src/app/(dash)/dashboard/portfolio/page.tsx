@@ -286,11 +286,6 @@ export default function PortfolioPage() {
         }
       ];
 
-      // Type guard for safe array access
-      function getItemAtIndex(items: PortfolioItem[], index: number): PortfolioItem | undefined {
-        return items[index];
-      }
-
       const mockCollections: PortfolioCollection[] = [
         {
           id: "collection_1",
@@ -303,7 +298,7 @@ export default function PortfolioPage() {
           created_at: "2025-08-01T00:00:00Z",
           created_by: "admin_1",
           creator_name: "Admin User",
-          items: (() => { const item = getItemAtIndex(mockPortfolioItems, 0); return item ? [item] : []; })(),
+          items: mockPortfolioItems.slice(0, 1),
           custom_branding: {
             logo_url: "/branding/cabana-logo.png",
             color_scheme: "luxury-gold",
@@ -326,7 +321,7 @@ export default function PortfolioPage() {
           created_at: "2025-07-15T00:00:00Z",
           created_by: "creator_2",
           creator_name: "Michael Chen",
-          items: (() => { const item = getItemAtIndex(mockPortfolioItems, 1); return item ? [item] : []; })(),
+          items: mockPortfolioItems.slice(1, 2),
           custom_branding: {
             color_scheme: "elegant-blue",
             font_family: "Manrope"

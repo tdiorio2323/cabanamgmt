@@ -36,23 +36,46 @@ export async function POST(request: NextRequest) {
   }
 
   // Check idempotency - prevent duplicate processing
-  const { data: existingEvent } = await supabaseAdmin
+  const { data: existingEvent, error: checkError } = await supabaseAdmin
     .from('stripe_events')
     .select('id')
     .eq('event_id', event.id)
     .maybeSingle();
+
+  if (checkError) {
+    logger.error('Failed to check event idempotency', {
+      event: 'stripe.webhook.db_error',
+      eventId: event.id,
+      error: checkError.message,
+    });
+    return NextResponse.json({ error: 'database error' }, { status: 500 });
+  }
 
   if (existingEvent) {
     logger.info('Stripe event already processed', { event: 'stripe.webhook.duplicate', eventId: event.id, type: event.type });
     return NextResponse.json({ received: true, duplicate: true });
   }
 
-  // Record this event for idempotency
-  await supabaseAdmin.from('stripe_events').insert({
-    event_id: event.id,
-    type: event.type,
-    processed_at: new Date().toISOString(),
-  });
+  // Record this event for idempotency (using upsert to handle race conditions)
+  const { error: insertError } = await supabaseAdmin
+    .from('stripe_events')
+    .upsert(
+      {
+        event_id: event.id,
+        type: event.type,
+        processed_at: new Date().toISOString(),
+      },
+      { onConflict: 'event_id', ignoreDuplicates: true }
+    );
+
+  if (insertError) {
+    logger.error('Failed to record event', {
+      event: 'stripe.webhook.insert_error',
+      eventId: event.id,
+      error: insertError.message,
+    });
+    // Don't fail webhook - event might still process correctly
+  }
 
   try {
     switch (event.type) {
