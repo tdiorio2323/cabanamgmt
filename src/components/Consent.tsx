@@ -2,7 +2,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { consentSchema } from "@/lib/schema";
-import { useBooking } from "@/lib/store";
+import { useBooking } from "@/lib/useBookingStore";
 import { toast } from "sonner";
 import { z } from "zod";
 

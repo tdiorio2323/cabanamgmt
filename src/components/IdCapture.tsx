@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useBooking } from "@/lib/store";
+import { useBooking } from "@/lib/useBookingStore";
 
 export default function IdCapture(){
   const set = useBooking((s)=>s.set);

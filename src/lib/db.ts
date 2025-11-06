@@ -77,6 +77,7 @@ export async function getUserByEmail(email: string) {
   return data;
 }
 
+// @future - Will be used by webhook handlers for identity verification and screening updates
 export async function updateUserStatus(
   id: string,
   fields: Partial<Pick<User, "verification_status" | "screening_status">>,
@@ -96,6 +97,7 @@ export async function updateUserStatus(
 // Booking Helpers
 // =============================
 
+// @future - Will be used when booking system is fully implemented
 export async function createBooking(booking: Omit<Booking, "id">) {
   const parsed = bookingSchema.parse(booking);
   const { data, error } = await supabase
@@ -108,6 +110,7 @@ export async function createBooking(booking: Omit<Booking, "id">) {
   return data;
 }
 
+// @future - Will be used by webhook handlers for deposit, interview, and contract updates
 export async function updateBookingStatus(
   id: string,
   fields: Partial<Pick<Booking, "deposit_status" | "interview_status" | "nda_signed" | "payment_intent_id">>,
@@ -123,6 +126,7 @@ export async function updateBookingStatus(
   return data;
 }
 
+// @future - Will be used in dashboard to display user booking history
 export async function getBookingsForUser(userId: string) {
   const { data, error } = await supabase
     .from("bookings")

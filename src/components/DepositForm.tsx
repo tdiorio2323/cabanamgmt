@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { useBooking } from "@/lib/store";
+import { useBooking } from "@/lib/useBookingStore";
 
 export default function DepositForm() {
   const router = useRouter();
