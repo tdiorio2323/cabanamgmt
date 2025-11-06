@@ -26,8 +26,7 @@ export default {
   ignore: [
     'src/**/__tests__/**',
     'src/**/?(*.)+(spec|test).*',
-    '__tests__/**',
-    'tests/**',
+    'tests/**', // All test files (unit, e2e, integration)
     'src/**/__mocks__/**',
     'src/**/*.stories.{ts,tsx}',
     'next-env.d.ts',
