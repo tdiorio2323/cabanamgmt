@@ -1,21 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 import { Shell } from '@/components/layout/Shell';
 import { ErrorBoundary } from '@/components/system/ErrorBoundary';
 import { logger } from '@/lib/logger';
+import { isDemoClient } from '@/lib/isDemo';
 
 export default function DashLayout({ children }: { children: React.ReactNode }) {
-  const isMockAuth = process.env.NEXT_PUBLIC_E2E_AUTH_MODE === 'mock';
-  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (isMockAuth || isDemo) {
+    // Check if demo mode
+    const isDemo = isDemoClient();
+
+    if (isDemo) {
       setAuthorized(true);
       setLoading(false);
       return;
@@ -89,15 +92,7 @@ export default function DashLayout({ children }: { children: React.ReactNode }) 
       mounted = false;
       cleanup?.();
     };
-  }, [router, isMockAuth]);
-
-  if (isMockAuth) {
-    return (
-      <ErrorBoundary>
-        <Shell>{children}</Shell>
-      </ErrorBoundary>
-    );
-  }
+  }, [router, pathname]);
 
   if (loading) {
     return (

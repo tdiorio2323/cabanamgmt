@@ -4,7 +4,18 @@ import { supabaseMock } from './supabaseMock';
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
+// Check for demo mode - this runs at module init time
+function shouldUseMock(): boolean {
+  // Check env var
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+    return true;
+  }
+
+  // For server-side, we can't check pathname at module init,
+  // but the env var should be sufficient for most cases
+  return false;
+}
 
 /**
  * Supabase Admin Client
@@ -20,11 +31,12 @@ const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
  * - Background jobs bypassing RLS
  */
 export const supabaseAdmin: SupabaseClient = (() => {
-  if (isDemo) {
+  if (shouldUseMock()) {
     return supabaseMock.admin as SupabaseClient;
   }
 
   if (!url || !serviceKey) {
+    // If no creds and not in demo, throw error
     throw new Error(
       'Missing Supabase service role credentials. NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.'
     );

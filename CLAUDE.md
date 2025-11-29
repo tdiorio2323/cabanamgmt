@@ -17,6 +17,7 @@ Premium creator booking platform for Cabana Management Group with comprehensive 
 - `CONTRIBUTING.md` - Contributor workflow and standards
 - `AGENTS.md` - Repository conventions and coding style
 - `docs/TESTING.md` - Playwright setup and testing guide
+- `docs/DEMO_MODE.md` - Partner demo mode setup and usage
 - `docs/architecture-diagram.md` - System architecture
 - `docs/audit-history.md` - October 2025 non-API hardening audit
 - `INTEGRATIONS.md` - Vendor integration specifications
@@ -80,6 +81,24 @@ pnpm run audit           # Project audit script
 pnpm run audit:routes    # Route discovery and scaffolding
 ```
 
+### Demo Mode
+
+```bash
+# Run locally in demo mode (no credentials required)
+NEXT_PUBLIC_DEMO_MODE=true pnpm dev
+
+# Access demo interface
+# Visit: http://localhost:3000/demo
+```
+
+**Demo Mode Features**:
+- No authentication required - bypasses login
+- Mock Supabase client with in-memory data
+- Stubbed Stripe payments and external services
+- View-only mode - no data persistence
+- Safe for partner presentations
+- See `docs/DEMO_MODE.md` for full guide
+
 ## Architecture
 
 ### Three-Track Application Structure
@@ -95,7 +114,9 @@ pnpm run audit:routes    # Route discovery and scaffolding
 
 3. **Admin Portal** (`/login`, `/dashboard/*`, `/admin/codes`)
    - Supabase Auth-protected
-   - Route group: `(dash)/dashboard` with shared layout
+   - Route group: `(dash)/dashboard` with shared layout (`src/app/(dash)/layout.tsx`)
+     - Route groups use parentheses to organize routes without affecting URLs
+     - The `(dash)` group provides auth middleware and shared dashboard layout
    - Navigation: `src/components/layout/DashboardNav.tsx`
    - Admin access: `ADMIN_EMAILS` env var + `src/lib/isAdminEmail.ts`
 
@@ -137,6 +158,15 @@ Multiple clients for different contexts:
 - `src/lib/supabaseServer.ts` - Server-side route handler client
 - `src/lib/supabaseAdmin.ts` - Service role admin client
 - `src/lib/getSession.ts` - Centralized session retrieval
+
+### Middleware
+
+The middleware layer (`src/middleware.ts`) handles:
+- **Demo Mode API Interception**: All `/api/*` routes return mock responses when demo mode is active
+- **Security Headers**: CSP and security headers applied to all HTML responses via `src/lib/securityHeaders.ts`
+- **Demo Auth Cookie**: Sets `auth_test` cookie for demo sessions
+
+**Matcher Pattern**: Runs on all routes except `_next`, `favicon.ico`, `robots.txt`
 
 ### API Routes
 
@@ -182,15 +212,18 @@ Multiple clients for different contexts:
 **Auth & Access**:
 - `isAdminEmail.ts` - Admin email validation
 - `getSession.ts` - Centralized session retrieval
+- `isDemo.ts` - Demo mode detection (pathname, query params, env var)
 
 **Data**:
 - `store.ts` - Zustand booking state
 - `schema.ts` - Zod validation schemas
 - `invites.ts` - Invitation helpers
+- `demo-data.ts` - In-memory demo data (talent, bookings, clients)
+- `demoMode.ts` - Demo mode utilities and wrappers
 
 **Supabase**:
 - `supabase.ts`, `supabaseBrowser.ts`, `supabaseServer.ts`, `supabaseAdmin.ts` - Client patterns
-- `supabaseMock.ts` - Testing mock
+- `supabaseMock.ts` - Demo mode mock (auto-loaded when `NEXT_PUBLIC_DEMO_MODE=true`)
 
 **External Services**:
 - `stripe.ts` - Stripe configuration
@@ -262,6 +295,21 @@ POSTMARK_API_KEY=
 RESEND_API_KEY=
 ```
 
+### Demo Mode Configuration
+
+```env
+# Demo Mode (partner presentations, no credentials required)
+NEXT_PUBLIC_DEMO_MODE=true
+```
+
+**Demo Mode Behavior**:
+- Bypasses all authentication
+- Uses in-memory mock data instead of Supabase
+- Stubs all external API calls (Stripe, email, etc.)
+- All routes accessible at `/demo` or with `?demo=1` query param
+- Safe for presentations - no real data or service calls
+- See `docs/DEMO_MODE.md` and `VERCEL_DEMO_SETUP.md` for deployment
+
 ## Critical Implementation Notes
 
 1. **Webhook Security**: All webhooks require signature verification before processing
@@ -278,6 +326,9 @@ RESEND_API_KEY=
 ## Coding Standards
 
 - **TypeScript**: 2-space indentation, trailing commas, strict mode + `noUncheckedIndexedAccess`
+  - `noUncheckedIndexedAccess` means all array/object access returns `T | undefined`
+  - Always check for undefined when accessing arrays/objects: `array[0]?.property`
+  - See `tsconfig.json` for full compiler options
 - **File Naming**: PascalCase for React components/hooks/stores (`Stepper.tsx`, `useBookingStore.ts`), lowercase-hyphenated for routes
 - **Styling**: Prefer Tailwind utilities; use scoped CSS only when necessary
 - **Imports**: Use `@/` prefix for absolute imports
@@ -340,6 +391,8 @@ RESEND_API_KEY=
 - **AGENTS.md** - Module organization, coding style, naming, testing patterns
 - **CONTRIBUTING.md** - Setup, commit conventions, branch naming, PR process
 - **CLAUDE.md** (this file) - Architecture, commands, database, implementation notes
-- **docs/audit-history.md** - October 2025 non-API hardening details
+- **docs/DEMO_MODE.md** - Demo mode guide for partner presentations
 - **docs/TESTING.md** - Playwright setup and troubleshooting
+- **docs/audit-history.md** - October 2025 non-API hardening details
 - **INTEGRATIONS.md** - Vendor API specifications
+- **VERCEL_DEMO_SETUP.md** - Vercel deployment for demo mode

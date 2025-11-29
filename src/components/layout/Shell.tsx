@@ -1,32 +1,36 @@
-import type React from "react"
-import { Sidebar } from "./Sidebar"
-import { Topbar } from "./Topbar"
+'use client';
 
-interface ShellProps {
-  children: React.ReactNode
-  breadcrumbs?: string[]
-}
+import { Sidebar } from './Sidebar';
+import { Topbar } from './Topbar';
+import { isDemoClient } from '@/lib/isDemo';
+import { AlertCircle } from 'lucide-react';
 
-export function Shell({ children, breadcrumbs }: ShellProps) {
-  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+export function Shell({ children }: { children: React.ReactNode }) {
+  const isDemo = isDemoClient();
 
   return (
-    <div className="flex min-h-screen">
+    <div className="relative min-h-screen">
       <Sidebar />
-      <div className="flex-1 pl-72">
+
+      <div className="ml-72">
+        {/* Demo Mode Banner */}
         {isDemo && (
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center py-2.5 px-4 text-sm font-medium shadow-md">
-            <div className="flex items-center justify-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Demo Mode – View Only | All data is simulated | No external services active</span>
+          <div className="sticky top-0 z-50 border-b border-amber-500/30 bg-gradient-to-r from-amber-500/20 to-orange-500/20 backdrop-blur-xl">
+            <div className="flex items-center justify-center gap-3 px-6 py-3">
+              <AlertCircle className="h-5 w-5 text-amber-400" />
+              <p className="text-sm font-medium text-amber-100">
+                <span className="font-semibold">Demo Mode</span> – View Only. All data is simulated. No external services are used.
+              </p>
             </div>
           </div>
         )}
-        <Topbar breadcrumbs={breadcrumbs} />
-        <main className="mx-auto max-w-7xl p-6 md:p-8">{children}</main>
+
+        <Topbar />
+
+        <main className="p-8">
+          {children}
+        </main>
       </div>
     </div>
-  )
+  );
 }

@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { securityHeaders } from './lib/securityHeaders';
+import { isDemoRequest } from './lib/isDemo';
 
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
-  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+  const pathname = request.nextUrl.pathname;
+  const searchParams = request.nextUrl.searchParams;
+  const isDemoMode = isDemoRequest(pathname, searchParams);
 
   // Demo Mode: Intercept ALL API routes
-  if (isDemo && request.nextUrl.pathname.startsWith('/api/')) {
-    const pathname = request.nextUrl.pathname;
-
+  if (isDemoMode && pathname.startsWith('/api/')) {
     // Webhooks - always return 200 OK
     if (pathname.includes('/webhook')) {
       return NextResponse.json({ received: true, demo: true }, { status: 200 });
@@ -82,8 +83,8 @@ export function middleware(request: NextRequest) {
     });
   }
 
-  // Auth cookie for demo/test mode
-  if (process.env.E2E_AUTH_MODE === 'mock' || isDemo) {
+  // Auth cookie for demo mode
+  if (isDemoMode) {
     const hasTestCookie = request.cookies.get('auth_test');
     if (!hasTestCookie) {
       response.cookies.set('auth_test', '1', {
@@ -96,7 +97,7 @@ export function middleware(request: NextRequest) {
 
   const isHtmlRequest =
     request.headers.get('accept')?.includes('text/html') ||
-    !request.nextUrl.pathname.startsWith('/api');
+    !pathname.startsWith('/api');
 
   if (isHtmlRequest) {
     securityHeaders.forEach(({ key, value }) => {
