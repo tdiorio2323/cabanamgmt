@@ -99,6 +99,7 @@ scripts/             # Build and utility scripts
 - **[CLAUDE.md](./CLAUDE.md)** - Complete project architecture and development guide
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Contribution guidelines
 - **[docs/TESTING.md](./docs/TESTING.md)** - Testing guide
+- **[docs/DEMO_MODE.md](./docs/DEMO_MODE.md)** - Safe view-only demo mode guide
 - **[INTEGRATIONS.md](./INTEGRATIONS.md)** - External API integration specs
 
 ## Features

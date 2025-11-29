@@ -28,9 +28,7 @@ export default function Page() {
 
       if (error) {
         toast.error(error.message);
-        console.error('Login error:', error);
       } else if (data.session) {
-        console.log('Login successful, session created:', !!data.session);
         toast.success("Welcome back!");
 
         // Give a small delay to ensure session is properly set
@@ -41,8 +39,7 @@ export default function Page() {
       } else {
         toast.error("Login failed - no session created");
       }
-    } catch (error) {
-      console.error('Login exception:', error);
+    } catch {
       toast.error("An error occurred during sign in");
     } finally {
       setLoading(false);

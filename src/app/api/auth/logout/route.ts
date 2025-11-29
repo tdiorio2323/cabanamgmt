@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
+import { handleDemoMode } from '@/lib/demoMode';
 
-export async function POST() {
+export async function POST(req: Request) {
+  const demoResponse = handleDemoMode(req);
+  if (demoResponse) return demoResponse;
+
   try {
     const supabase = supabaseBrowser();
     const { error } = await supabase.auth.signOut();

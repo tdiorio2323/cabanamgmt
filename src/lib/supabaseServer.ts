@@ -7,7 +7,8 @@ import { supabaseMock } from "./supabaseMock";
 type ServerClient = SupabaseClient<any, any, any>;
 
 export async function supabaseServer(): Promise<ServerClient> {
-  if (process.env.E2E_AUTH_MODE === "mock") {
+  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+  if (process.env.E2E_AUTH_MODE === "mock" || isDemo) {
     return supabaseMock.server as ServerClient;
   }
 

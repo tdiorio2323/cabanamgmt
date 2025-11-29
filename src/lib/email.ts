@@ -67,6 +67,18 @@ export async function sendInviteEmail({ to, code, inviteUrl, role }: SendInviteE
 </html>
   `;
 
+  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
+  // If demo mode, log and skip
+  if (isDemo) {
+    logger.info('Demo mode - email not sent', {
+      event: 'email.demo',
+      to: '[redacted]',
+      code,
+    });
+    return;
+  }
+
   // If no API key, log and skip (development mode)
   if (!resend) {
     logger.warn('RESEND_API_KEY not configured - email not sent', {
