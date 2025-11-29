@@ -9,12 +9,13 @@ import { logger } from '@/lib/logger';
 
 export default function DashLayout({ children }: { children: React.ReactNode }) {
   const isMockAuth = process.env.NEXT_PUBLIC_E2E_AUTH_MODE === 'mock';
+  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (isMockAuth) {
+    if (isMockAuth || isDemo) {
       setAuthorized(true);
       setLoading(false);
       return;

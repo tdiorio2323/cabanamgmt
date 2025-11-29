@@ -5,7 +5,7 @@ import { securityHeaders } from './lib/securityHeaders';
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
-  if (process.env.E2E_AUTH_MODE === 'mock') {
+  if (process.env.E2E_AUTH_MODE === 'mock' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
     const hasTestCookie = request.cookies.get('auth_test');
     if (!hasTestCookie) {
       response.cookies.set('auth_test', '1', {
