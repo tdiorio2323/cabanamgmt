@@ -4,8 +4,86 @@ import { securityHeaders } from './lib/securityHeaders';
 
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
+  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
-  if (process.env.E2E_AUTH_MODE === 'mock' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+  // Demo Mode: Intercept ALL API routes
+  if (isDemo && request.nextUrl.pathname.startsWith('/api/')) {
+    const pathname = request.nextUrl.pathname;
+
+    // Webhooks - always return 200 OK
+    if (pathname.includes('/webhook')) {
+      return NextResponse.json({ received: true, demo: true }, { status: 200 });
+    }
+
+    // VIP endpoints
+    if (pathname.includes('/vip/create')) {
+      return NextResponse.json({
+        code: 'DEMO-VIP-001',
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      });
+    }
+    if (pathname.includes('/vip/list')) {
+      return NextResponse.json({ codes: [] });
+    }
+    if (pathname.includes('/vip/redeem')) {
+      return NextResponse.json({ success: true, message: 'Demo mode - no action taken' });
+    }
+
+    // Invite endpoints
+    if (pathname.includes('/invites/create')) {
+      return NextResponse.json({ id: 'demo-invite', token: 'demo-token' });
+    }
+    if (pathname.includes('/invites/list')) {
+      return NextResponse.json({ invites: [] });
+    }
+    if (pathname.includes('/invites')) {
+      return NextResponse.json({ success: true, message: 'Demo mode - no action taken' });
+    }
+
+    // Stripe endpoints
+    if (pathname.includes('/stripe')) {
+      return NextResponse.json({ success: true, demo: true });
+    }
+
+    // Identity/screening endpoints
+    if (pathname.includes('/identity') || pathname.includes('/screening')) {
+      return NextResponse.json({ success: true, demo: true });
+    }
+
+    // Contract endpoints
+    if (pathname.includes('/contracts')) {
+      return NextResponse.json({ success: true, demo: true });
+    }
+
+    // Users
+    if (pathname.includes('/users/create')) {
+      return NextResponse.json({ id: 'demo-user', email: 'demo@example.com' });
+    }
+
+    // Interview
+    if (pathname.includes('/interview')) {
+      return NextResponse.json({ success: true, demo: true });
+    }
+
+    // Health checks
+    if (pathname.includes('/health')) {
+      return NextResponse.json({ status: 'ok', demo: true });
+    }
+
+    // Logout
+    if (pathname.includes('/auth/logout')) {
+      return NextResponse.json({ success: true });
+    }
+
+    // Default: generic demo response for any other API route
+    return NextResponse.json({
+      demo: true,
+      message: 'Demo mode - no action taken'
+    });
+  }
+
+  // Auth cookie for demo/test mode
+  if (process.env.E2E_AUTH_MODE === 'mock' || isDemo) {
     const hasTestCookie = request.cookies.get('auth_test');
     if (!hasTestCookie) {
       response.cookies.set('auth_test', '1', {
@@ -31,6 +109,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next|api/test-login|favicon.ico|robots.txt).*)',
+    '/((?!_next|favicon.ico|robots.txt).*)',
   ],
 };

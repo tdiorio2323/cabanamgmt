@@ -1,79 +1,131 @@
-# Safe View-Only Demo Mode
+# Demo Mode – Partner Preview
 
-This project includes a "Demo Mode" that allows you to run the application in a safe, view-only state without connecting to any external services (Supabase, Stripe, etc.) or requiring real environment variables.
+## Overview
 
-## Purpose
+Demo Mode provides a **safe, isolated environment** for showcasing the Cabana Management platform to potential partners without requiring any external services or credentials.
 
-The Demo Mode is designed for:
-- Screen-sharing the platform to potential partners or investors.
-- Testing the UI/UX without needing a full backend setup.
-- Running the app in a completely isolated environment.
+## Quick Start
 
-## How It Works
-
-When Demo Mode is enabled:
-1.  **Auth Bypass**: The app treats every visitor as an authenticated "Demo Admin". No login is required.
-2.  **Data Mocking**: All data is served from a local mock dataset (`src/lib/demo-data.ts`). No real database queries are made.
-3.  **Service Isolation**: External services like Stripe, Onfido, Checkr, and DocuSign are mocked or disabled. No network calls are made to these vendors.
-4.  **View-Only**: All mutating actions (create, update, delete) are no-ops. The UI may appear to perform the action, but no data is changed.
-
-## How to Run
-
-You can run the demo mode locally with a single environment variable.
-
-### Prerequisites
-- Node.js and pnpm installed.
-
-### Command
+### Running Locally
 
 ```bash
+# 1. Install dependencies (if not already done)
+pnpm install
+
+# 2. Start the development server in Demo Mode
 NEXT_PUBLIC_DEMO_MODE=true pnpm dev
+
+# 3. Open your browser
+http://localhost:3000/demo
 ```
 
-### Accessing the Demo
+The application will automatically:
+- Bypass all authentication
+- Load simulated demo data
+- Disable all external service calls
+- Show a clear "Demo Mode" banner
 
-Once the server is running (usually at `http://localhost:3000`), navigate to:
+## What's Included
 
-**[http://localhost:3000/demo](http://localhost:3000/demo)**
+### Demo Data
+- **8 Talent Profiles** - Realistic creator profiles across different categories (Nightlife, Brand Campaigns, Events)
+- **12 Bookings** - Mix of statuses: Confirmed, Pending, Requested, Completed, Cancelled
+- **5 Clients** - Sample brands and organizations across different industries
+- **KPI Metrics** - Revenue tracking, booking analytics, talent verification stats
 
-This route will redirect you to the main dashboard, populated with demo data.
-
-## Demo Data
-
-The demo data includes:
-- **Talent**: Sample creator profiles with various statuses.
-- **Bookings**: Sample bookings in requested, confirmed, and completed states.
-- **Clients**: Sample brand profiles.
-
-You can modify `src/lib/demo-data.ts` to add or change the sample data.
+### Feature Showcases
+- Talent management dashboard
+- Booking workflow and status tracking
+- Client relationship management
+- Verification and compliance workflows
+- Admin controls and system monitoring
 
 ## Safety Guarantees
 
-When `NEXT_PUBLIC_DEMO_MODE=true`, the following protections are in place:
+When `NEXT_PUBLIC_DEMO_MODE=true` is set:
 
-### Auth & Session
-- **Middleware** (`src/middleware.ts`): Bypasses all auth checks
-- **Dashboard Layout** (`src/app/(dash)/layout.tsx`): Auto-authorizes as "Demo Admin"
-- **No login required**: Direct access to all dashboard routes
+### ✅ No External Services
+- **No Supabase** - All database queries return mocked data
+- **No Stripe** - Payment processing is stubbed
+- **No Email/Resend** - Email sending is logged, not sent
+- **No Webhooks** - All webhook endpoints return success without processing
+- **No API Calls** - Zero network requests to external services
 
-### Data Layer
-- **Supabase Browser Client** (`src/lib/supabaseBrowser.ts`): Uses mock client
-- **Supabase Server Client** (`src/lib/supabaseServer.ts`): Uses mock client
-- **Supabase Admin Client** (`src/lib/supabaseAdmin.ts`): Uses mock client
-- **No DB Writes**: All `insert`, `update`, `delete` methods are no-ops in mock
-- **Demo Data**: Served from `src/lib/demo-data.ts`
+### ✅ No Credentials Required
+- Runs with ONLY the `NEXT_PUBLIC_DEMO_MODE` environment variable
+- No Supabase keys, Stripe keys, or other service credentials needed
+- Missing environment variables do not cause errors
 
-### External Services
-- **Stripe** (`src/lib/stripe.ts`): Mocked - no payment processing
-- **Email/Resend** (`src/lib/email.ts`): Skipped - logs only, no emails sent
-- **Webhooks**: All webhook endpoints return 200 OK without processing
+### ✅ View-Only Mode
+- All create/update/delete operations are no-ops
+- UI remains interactive but no data is persisted
+- Changes are silently ignored or show friendly demo messages
 
-### API Routes
-- **Demo Handler** (`src/lib/demoMode.ts`): Intercepts all API calls
-- **No External Calls**: Zero network requests to Supabase, Stripe, Onfido, Checkr, DocuSign
-- **Safe Responses**: All API routes return mock success responses
+### ✅ No Authentication
+- Login bypassed automatically
+- Direct access to all dashboard routes
+- Session management disabled
 
-### Environment Variables
-- **Zero Dependencies**: App runs with ONLY `NEXT_PUBLIC_DEMO_MODE=true`
-- **No Required Keys**: Supabase, Stripe, Resend keys are optional in demo mode
-- **Graceful Fallbacks**: Missing env vars don't throw errors
+## Architecture
+
+### Data Layer (`src/lib/demo-data.ts`)
+Static, in-memory dataset with realistic talent, booking, and client records.
+
+### Service Mocks
+- `src/lib/supabaseMock.ts` - Mock Supabase client with query support
+- `src/lib/supabaseBrowser.ts` - Auto-switches to mock in demo mode
+- `src/lib/supabaseServer.ts` - Auto-switches to mock in demo mode
+- `src/lib/supabaseAdmin.ts` - Auto-switches to mock in demo mode
+- `src/lib/stripe.ts` - Returns stub Stripe client in demo mode
+- `src/lib/email.ts` - Skips email sending in demo mode
+
+### Middleware (`src/middleware.ts`)
+Intercepts ALL API routes and returns appropriate demo responses.
+
+### UI Components
+- Demo mode banner clearly indicates simulated environment
+- All navigation and routing fully functional
+- Professional, polished interface
+
+## Partner Demo Walkthrough
+
+When presenting to partners, highlight:
+
+1. **Dashboard Overview** - Quick snapshot of platform KPIs and activity
+2. **Talent Management** - Browse talent profiles, verification statuses, categories
+3. **Booking Workflow** - See different booking states and lifecycle management
+4. **Client Relationships** - Track brand partnerships and project history
+5. **Admin Controls** - Platform health, user management, system monitoring
+
+## Production vs Demo
+
+| Feature | Production | Demo Mode |
+|---------|-----------|-----------|
+| Authentication | Supabase Auth | Bypassed |
+| Database | PostgreSQL via Supabase | In-memory mock |
+| Payments | Live Stripe | Stubbed |
+| Emails | Resend API | Logged only |
+| Data Persistence | Full CRUD | View-only |
+| External APIs | Live webhooks | No-ops |
+| Env Variables | Required | Only demo flag |
+
+## Troubleshooting
+
+**App won't start?**
+- Ensure `NEXT_PUBLIC_DEMO_MODE=true` is set
+- Check that `pnpm install` completed successfully
+
+**Seeing empty data?**
+- Verify you're accessing `/demo` route
+- Check browser console for any errors
+- Ensure demo flag is correctly set
+
+**Authentication issues?**
+- Demo mode should bypass all auth - if you see login screens, the flag may not be set correctly
+
+## Notes
+
+- Demo data is completely fictional - no real names, emails, or venues
+- All dollar amounts and metrics are simulated
+- Demo mode is for presentation purposes only
+- Never use demo mode in production deployments
