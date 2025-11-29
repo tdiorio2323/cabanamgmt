@@ -52,7 +52,7 @@ export type Database = {
           changed_at: string | null
           changed_by: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           new_values: Json | null
           old_values: Json | null
           operation: string
@@ -64,7 +64,7 @@ export type Database = {
           changed_at?: string | null
           changed_by?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           operation: string
@@ -76,7 +76,7 @@ export type Database = {
           changed_at?: string | null
           changed_by?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           operation?: string
@@ -194,7 +194,7 @@ export type Database = {
         Row: {
           id: string
           invite_id: string
-          ip: unknown | null
+          ip: unknown
           redeemed_at: string
           user_agent: string | null
           user_id: string
@@ -202,7 +202,7 @@ export type Database = {
         Insert: {
           id?: string
           invite_id: string
-          ip?: unknown | null
+          ip?: unknown
           redeemed_at?: string
           user_agent?: string | null
           user_id: string
@@ -210,7 +210,7 @@ export type Database = {
         Update: {
           id?: string
           invite_id?: string
-          ip?: unknown | null
+          ip?: unknown
           redeemed_at?: string
           user_agent?: string | null
           user_id?: string
@@ -490,7 +490,7 @@ export type Database = {
         Row: {
           code_id: string
           id: string
-          ip: unknown | null
+          ip: unknown
           redeemed_at: string
           user_agent: string | null
           user_id: string
@@ -498,7 +498,7 @@ export type Database = {
         Insert: {
           code_id: string
           id?: string
-          ip?: unknown | null
+          ip?: unknown
           redeemed_at?: string
           user_agent?: string | null
           user_id: string
@@ -506,7 +506,7 @@ export type Database = {
         Update: {
           code_id?: string
           id?: string
-          ip?: unknown | null
+          ip?: unknown
           redeemed_at?: string
           user_agent?: string | null
           user_id?: string
@@ -596,58 +596,49 @@ export type Database = {
         }
         Returns: boolean
       }
-      cleanup_rate_limits: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      decrement_uses: {
-        Args: { p_code_id: string }
-        Returns: undefined
-      }
-      get_app_setting: {
-        Args: { k: string }
-        Returns: string
-      }
-      get_setting: {
-        Args: { k: string }
-        Returns: string
-      }
-      is_admin: {
-        Args: Record<PropertyKey, never> | { user_email: string }
-        Returns: boolean
-      }
+      cleanup_old_stripe_events: { Args: never; Returns: undefined }
+      cleanup_rate_limits: { Args: never; Returns: undefined }
+      decrement_uses: { Args: { p_code_id: string }; Returns: undefined }
+      get_app_setting: { Args: { k: string }; Returns: string }
+      get_setting: { Args: { k: string }; Returns: string }
+      is_admin:
+        | { Args: { user_email: string }; Returns: boolean }
+        | { Args: never; Returns: boolean }
       list_users_basic: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           email: string
           id: string
         }[]
       }
-      mint_vip_code: {
-        Args:
-          | {
-              p_code?: string
-              p_days?: number
-              p_metadata?: Json
-              p_role?: string
-              p_uses?: number
-            }
-          | {
+      mint_vip_code:
+        | {
+            Args: {
               p_code?: string
               p_expires_at?: string
               p_metadata?: Json
               p_role?: string
               p_uses?: number
             }
-        Returns: {
-          code: string
-          expires_at: string
-          role: string
-          uses_allowed: number
-          uses_remaining: number
-        }[]
-      }
+            Returns: {
+              code: string
+              expires_at: string
+              role: string
+              uses_allowed: number
+              uses_remaining: number
+            }[]
+          }
+        | {
+            Args: {
+              p_code?: string
+              p_days?: number
+              p_metadata?: Json
+              p_role?: string
+              p_uses?: number
+            }
+            Returns: string
+          }
       redeem_vip_code: {
         Args: { p_code: string; p_ip?: unknown; p_user_agent?: string }
         Returns: string
