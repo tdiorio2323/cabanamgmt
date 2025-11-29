@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
+import { supabaseMock } from "./supabaseMock";
+
 const isBrowser = typeof window !== "undefined";
 
 if (isBrowser) {
@@ -10,11 +12,10 @@ if (isBrowser) {
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!url || !serviceRoleKey) {
-  throw new Error("Missing Supabase server credentials. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.");
-}
-
-const supabase = createClient(url, serviceRoleKey, { auth: { persistSession: false } });
+const supabase = (!url || !serviceRoleKey)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ? (console.warn("Missing Supabase server credentials. Using mock client."), supabaseMock.admin as any)
+  : createClient(url, serviceRoleKey, { auth: { persistSession: false } });
 
 // =============================
 // Zod Schemas

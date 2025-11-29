@@ -74,46 +74,68 @@ class MockQueryBuilder<T extends Record<string, unknown> = Record<string, unknow
   }
 
   gt(column: string, value: any) {
-    this.rows = this.rows.filter((row) => row[column] > value);
+    this.rows = this.rows.filter((row) => {
+      const record = row as Record<string, any>;
+      return record[column] > value;
+    });
+
     return this;
   }
 
   lt(column: string, value: any) {
-    this.rows = this.rows.filter((row) => row[column] < value);
+    this.rows = this.rows.filter((row) => {
+      const record = row as Record<string, any>;
+      return record[column] < value;
+    });
     return this;
   }
 
   gte(column: string, value: any) {
-    this.rows = this.rows.filter((row) => row[column] >= value);
+    this.rows = this.rows.filter((row) => {
+      const record = row as Record<string, any>;
+      return record[column] >= value;
+    });
     return this;
   }
 
   lte(column: string, value: any) {
-    this.rows = this.rows.filter((row) => row[column] <= value);
+    this.rows = this.rows.filter((row) => {
+      const record = row as Record<string, any>;
+      return record[column] <= value;
+    });
     return this;
   }
 
   in(column: string, values: any[]) {
-    this.rows = this.rows.filter((row) => values.includes(row[column]));
+    this.rows = this.rows.filter((row) => {
+      const record = row as Record<string, any>;
+      return values.includes(record[column]);
+    });
     return this;
   }
 
   is(column: string, value: any) {
-    this.rows = this.rows.filter((row) => row[column] === value);
+    this.rows = this.rows.filter((row) => {
+      const record = row as Record<string, any>;
+      return record[column] === value;
+    });
     return this;
   }
 
   match(query: Record<string, any>) {
     this.rows = this.rows.filter((row) => {
-      return Object.entries(query).every(([key, value]) => row[key] === value);
+      const record = row as Record<string, any>;
+      return Object.entries(query).every(([key, value]) => record[key] === value);
     });
     return this;
   }
 
   order(column: string, { ascending = true } = {}) {
     this.rows.sort((a, b) => {
-      if (a[column] < b[column]) return ascending ? -1 : 1;
-      if (a[column] > b[column]) return ascending ? 1 : -1;
+      const recordA = a as Record<string, any>;
+      const recordB = b as Record<string, any>;
+      if (recordA[column] < recordB[column]) return ascending ? -1 : 1;
+      if (recordA[column] > recordB[column]) return ascending ? 1 : -1;
       return 0;
     });
     return this;
@@ -184,6 +206,17 @@ const mockAuth = {
       data: { subscription: { unsubscribe() {} } as Subscription },
       error: null,
     };
+  },
+  admin: {
+    listUsers: async () => {
+      return { data: { users: [demoUser] }, error: null };
+    },
+    createUser: async () => {
+      return { data: { user: demoUser }, error: null };
+    },
+    deleteUser: async () => {
+      return { data: null, error: null };
+    },
   },
 };
 
