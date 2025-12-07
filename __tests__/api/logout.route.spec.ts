@@ -11,7 +11,8 @@ vi.mock("@/lib/supabaseBrowser", () => ({
 describe("POST /api/auth/logout", () => {
   test("POST clears session", async () => {
     const mod = await import("@/app/api/auth/logout/route");
-    const res = await mod.POST();
+    const req = new Request("http://localhost/api/auth/logout", { method: "POST" });
+    const res = await mod.POST(req);
     expect(res.status).toBeLessThan(400);
   });
 });

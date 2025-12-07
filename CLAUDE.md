@@ -8,6 +8,10 @@ Premium creator booking platform for Cabana Management Group with comprehensive 
 
 **Tech Stack**: Next.js 15 (App Router) + TypeScript + Tailwind CSS 4 + shadcn/ui + Stripe + Supabase + Framer Motion
 
+**Requirements**:
+- Node.js 20.x
+- pnpm 9.x or 10.x (specifically 10.15.1 recommended)
+
 **Status**: ~75% Complete (Q1 2025 launch target)
 - ✅ Core infrastructure, database, auth, payments, UI/UX
 - ⏳ External integrations (Onfido/Veriff, Checkr/Certn, DocuSign)
@@ -28,8 +32,8 @@ Premium creator booking platform for Cabana Management Group with comprehensive 
 
 ```bash
 pnpm install          # Install dependencies (pnpm@10.15.1 required)
-pnpm run dev          # Start dev server at localhost:3000
-pnpm run build        # Production build (required before release)
+pnpm run dev          # Start dev server at localhost:3000 (with --turbopack)
+pnpm run build        # Production build with Turbopack (required before release)
 pnpm run start        # Serve production build locally
 pnpm run lint         # ESLint validation (must pass before PR)
 pnpm run typecheck    # TypeScript type checking
@@ -45,14 +49,18 @@ pnpm run ci:verify    # Complete CI simulation: verify:fast + build + unit tests
 ```bash
 # Vitest Unit Tests
 pnpm run test            # Run all unit tests
+pnpm run test:unit       # Run unit tests (alias)
 pnpm run test -- --watch # Watch mode
 pnpm run test -- --ui    # Browser UI
+pnpm run test -- src/components/auth/Login.test.tsx  # Run specific test file
 
 # Playwright E2E Tests (requires .env.test.local + running dev server)
 pnpm run test:auth       # Authentication flow tests
 pnpm run test:smoke      # Generated smoke tests
 pnpm run test:e2e        # All E2E tests
+pnpm run test:all        # Run all Playwright tests
 pnpm run test:ui         # Interactive debugging UI
+pnpm run test:functional # Run smoke tests and E2E tests together
 pnpm run verify:all      # Route audit + smoke tests
 ```
 
@@ -79,6 +87,8 @@ pnpm run smoke           # Generate smoke test specs from routes
 pnpm run seed:admin      # Seed admin user
 pnpm run audit           # Project audit script
 pnpm run audit:routes    # Route discovery and scaffolding
+pnpm run audit:readiness # Production readiness audit
+pnpm run test:setup      # Display Playwright test setup instructions
 ```
 
 ### Demo Mode
@@ -123,7 +133,9 @@ NEXT_PUBLIC_DEMO_MODE=true pnpm dev
 **Additional Routes**:
 - Auth: `/login`, `/signup`, `/reset-password`, `/auth/callback`
 - Access codes: `/vip/[code]`, `/invite/[code]`
+- Demo redirect: `/partner-demo` → redirects to `/demo`
 - Debug: `/debug/session` (dev only)
+- API: `/api/auth/logout` - Logout endpoint (supports both GET and POST)
 
 ### State Management
 
@@ -172,10 +184,12 @@ The middleware layer (`src/middleware.ts`) handles:
 
 **Production Routes**:
 - `/api/health`, `/api/db/health` - Health checks
+- `/api/auth/logout` - Logout endpoint (GET/POST)
 - `/api/users/create` - User account creation
 - `/api/vip/*` - VIP code management (create, list, redeem)
 - `/api/invites/*` - Invitation management (create, list, accept, revoke, resend, validate)
 - `/api/stripe/create-deposit` - Stripe PaymentIntent creation
+- `/api/test-login` - Test login endpoint (development only)
 
 **Stubbed Routes** (need vendor SDK integration):
 - `/api/identity/*` - Onfido/Veriff IDV + webhook
@@ -310,6 +324,20 @@ NEXT_PUBLIC_DEMO_MODE=true
 - Safe for presentations - no real data or service calls
 - See `docs/DEMO_MODE.md` and `VERCEL_DEMO_SETUP.md` for deployment
 
+## Scripts Directory
+
+The `scripts/` directory contains various utility and deployment scripts:
+- `production-readiness-audit.mjs` - Comprehensive production readiness check
+- `project-audit.mjs` - General project health audit
+- `audit-and-scaffold.mjs` - Route discovery and scaffolding
+- `db-verify.mjs` - Database connection verification
+- `seed-admin.mjs` - Admin user seeding
+- `create-auth-user.mjs` - Auth user creation helper
+- `check-and-reset-user.mjs` - User state management
+- `deploy-production.sh` - Production deployment script
+- `deep-scan.sh` - Deep codebase analysis
+- `admin-setup.sql` - Admin database setup queries
+
 ## Critical Implementation Notes
 
 1. **Webhook Security**: All webhooks require signature verification before processing
@@ -340,14 +368,30 @@ NEXT_PUBLIC_DEMO_MODE=true
 - **E2E Tests (Playwright)**: Full user flows, auth, booking wizard - requires running dev server
 - **Smoke Tests**: Auto-generated from route structure to ensure all pages load
 
+**Test Directory Structure**:
+```
+__tests__/           # Unit test directory
+├── api/            # API route unit tests (e.g., logout.route.spec.ts)
+├── components/     # Component unit tests
+└── pages/          # Page unit tests
+
+tests/              # Playwright E2E test directory
+├── auth.spec.ts    # Authentication flow tests
+├── logout.spec.ts  # Logout flow tests
+├── invites.*.unit.spec.ts  # Invitation system unit tests
+├── smoke.generated.spec.ts # Auto-generated smoke tests
+└── global-setup.ts # Global test configuration
+```
+
 **Test Requirements**:
 - Copy `.env.test.local.example` to `.env.test.local`
-- Dev server must be running
+- Dev server must be running for E2E tests
 - Test user must exist in Supabase and be in `ADMIN_EMAILS`
 
 **Adding Tests**:
-- Colocate unit tests: `*.test.tsx` next to source files
+- Unit tests: Add to `__tests__/` directory mirroring source structure
 - E2E tests: Add to `/tests` directory
+- Colocate component tests: `*.test.tsx` next to source files (alternative pattern)
 - Target critical flows: booking process, Supabase transforms, auth
 
 ## First-Time Setup
