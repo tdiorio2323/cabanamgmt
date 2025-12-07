@@ -10,6 +10,13 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)"],
+        display: ["var(--font-display)"],
+        inter: ["var(--font-inter)"],
+        script: ["var(--font-script)"],
+        bebas: ["var(--font-bebas)"],
+      },
       colors: {
         bg: "#0a0a0a",
         ink: "#f5f5f5",

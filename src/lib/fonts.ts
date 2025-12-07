@@ -1,4 +1,4 @@
-import { Manrope, Cinzel, Inter, Ballet } from "next/font/google";
+import { Manrope, Cinzel, Inter, Ballet, Bebas_Neue } from "next/font/google";
 
 export const sans = Manrope({
   subsets: ["latin"],
@@ -21,5 +21,11 @@ export const inter = Inter({
 export const script = Ballet({
   subsets: ["latin"],
   variable: "--font-script",
+  weight: "400",
+});
+
+export const bebas = Bebas_Neue({
+  subsets: ["latin"],
+  variable: "--font-bebas",
   weight: "400",
 });

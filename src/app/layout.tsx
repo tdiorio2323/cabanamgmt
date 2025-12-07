@@ -1,7 +1,7 @@
 import "./globals.css";
 import { ReactNode } from "react";
 import { Toaster } from "sonner";
-import { sans, display, inter, script } from "@/lib/fonts";
+import { sans, display, inter, script, bebas } from "@/lib/fonts";
 import { Metadata } from "next";
 import { ErrorBoundary } from "@/components/system/ErrorBoundary";
 
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${display.variable} ${inter.variable} ${script.variable}`}
+      className={`${sans.variable} ${display.variable} ${inter.variable} ${script.variable} ${bebas.variable}`}
     >
       <body
         className="min-h-screen bg-bg text-ink antialiased"
