@@ -6,11 +6,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
-  experimental: {
-    turbopack: {
-      root: process.cwd(),
-    },
-  },
+
   async redirects() {
     return [
       {
