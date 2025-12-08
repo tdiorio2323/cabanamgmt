@@ -7,6 +7,9 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const nextConfig: NextConfig = {
 
+  images: {
+    qualities: [75, 100],
+  },
   async redirects() {
     return [
       {
