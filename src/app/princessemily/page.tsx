@@ -72,7 +72,7 @@ export default function PrincessEmilyLinkBio() {
 
             {/* Title & Subtitle */}
             <div className="space-y-1">
-              <div className="font-[family-name:var(--font-script)] text-5xl leading-tight tracking-wide">
+              <div className="whitespace-nowrap font-[family-name:var(--font-script)] text-5xl leading-tight tracking-wide">
                 Princess Emily
               </div>
               <div className="font-[family-name:var(--font-display)] text-sm uppercase tracking-[0.45em] text-white/85">
