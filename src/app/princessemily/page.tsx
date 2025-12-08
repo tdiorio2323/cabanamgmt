@@ -55,7 +55,7 @@ export default function PrincessEmilyLinkBio() {
         className="relative w-full max-w-md"
       >
         <div className="absolute inset-0 -z-10 rounded-[32px] bg-black/40 blur-3xl" />
-        <div className="relative overflow-hidden rounded-[32px] border-2 border-white/20 bg-black/30 px-10 py-12 shadow-[0_0_45px_rgba(0,0,0,0.65)] backdrop-blur-lg">
+        <div className="relative overflow-hidden rounded-[32px] border-2 border-white/20 bg-black/30 px-6 py-10 md:px-10 md:py-12 shadow-[0_0_45px_rgba(0,0,0,0.65)] backdrop-blur-lg">
           <div className="pointer-events-none absolute inset-0 rounded-[32px] border border-white/10" />
           <div className="pointer-events-none absolute inset-x-10 top-0 h-48 rounded-b-full bg-white/15 opacity-60 blur-3xl" />
 
@@ -72,7 +72,7 @@ export default function PrincessEmilyLinkBio() {
 
             {/* Title & Subtitle */}
             <div className="space-y-1">
-              <div className="whitespace-nowrap font-[family-name:var(--font-script)] text-5xl leading-tight tracking-wide">
+              <div className="whitespace-nowrap font-[family-name:var(--font-script)] text-3xl sm:text-4xl md:text-5xl leading-tight tracking-wide">
                 Princess Emily
               </div>
               <div className="font-[family-name:var(--font-display)] text-sm uppercase tracking-[0.45em] text-white/85">
