@@ -79,16 +79,6 @@ export async function sendInviteEmail({ to, code, inviteUrl, role }: SendInviteE
     return;
   }
 
-  // If no API key, log and skip (development mode)
-  if (!resend) {
-    logger.warn('RESEND_API_KEY not configured - email not sent', {
-      event: 'email.skipped',
-      to: '[redacted]',
-      code,
-    });
-    return;
-  }
-
   try {
     const result = await resend.emails.send({
       from,
@@ -112,3 +102,52 @@ export async function sendInviteEmail({ to, code, inviteUrl, role }: SendInviteE
   }
 }
 
+export type BuilderSubmission = {
+  profileImageUrl: string;
+  backgroundImageUrl: string;
+  title: string;
+  subtitle?: string;
+  links: string[];
+};
+
+export async function sendBuilderSubmissionEmail(submission: BuilderSubmission): Promise<void> {
+  // Use a verified sender or a generic one if configured
+  const from = process.env.MAIL_FROM || 'onboarding@resend.dev';
+  // Send to the admin
+  const to = 'tyler@tdstudiosny.com';
+
+  const subject = 'New Link Page Request';
+
+  const html = `
+    <h1>New Link Page Request</h1>
+    <p><strong>Title:</strong> ${submission.title}</p>
+    <p><strong>Subtitle:</strong> ${submission.subtitle || 'N/A'}</p>
+
+    <h3>Images</h3>
+    <p><strong>Profile:</strong> <a href="${submission.profileImageUrl}">View Profile Image</a></p>
+    <p><strong>Background:</strong> <a href="${submission.backgroundImageUrl}">View Background Image</a></p>
+
+    <h3>Links</h3>
+    <ul>
+      ${submission.links.map((link, i) => `<li>Link ${i + 1}: <a href="${link}">${link}</a></li>`).join('')}
+    </ul>
+  `;
+
+  if (!resend) {
+    console.warn('RESEND_API_KEY missing - skipping email');
+    return;
+  }
+
+  try {
+    await resend.emails.send({
+      from,
+      to,
+      subject,
+      html,
+    });
+    logger.info('Builder submission email sent');
+  } catch (error) {
+    logger.error('Failed to send builder submission email', error);
+    throw error;
+  }
+}
