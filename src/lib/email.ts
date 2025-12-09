@@ -78,6 +78,10 @@ export async function sendInviteEmail({ to, code, inviteUrl, role }: SendInviteE
     });
     return;
   }
+  if (!resend) {
+    logger.warn('RESEND_API_KEY not configured - email not sent');
+    return;
+  }
 
   try {
     const result = await resend.emails.send({
