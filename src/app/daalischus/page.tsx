@@ -24,6 +24,16 @@ export default function DaalischusLinkBio() {
       is18Plus: false,
     },
     {
+      label: "ONLYFANS",
+      url: "https://onlyfans.com/daalischusrose",
+      is18Plus: true,
+    },
+    {
+      label: "BOOKINGS",
+      url: "https://www.instagram.com/aaron.theplug/",
+      is18Plus: false,
+    },
+    {
       label: "TWITTER / X",
       url: "https://x.com/daalischus?s=21",
       is18Plus: false,
@@ -36,16 +46,6 @@ export default function DaalischusLinkBio() {
     {
       label: "TIKTOK",
       url: "https://www.tiktok.com/@Magicallydaalischus",
-      is18Plus: false,
-    },
-    {
-      label: "ONLYFANS",
-      url: "https://onlyfans.com/daalischusrose",
-      is18Plus: true,
-    },
-    {
-      label: "BOOKINGS",
-      url: "https://www.instagram.com/aaron.theplug/",
       is18Plus: false,
     },
   ];
@@ -106,7 +106,7 @@ export default function DaalischusLinkBio() {
               <div className="w-full whitespace-nowrap text-center font-[family-name:var(--font-bebas)] text-5xl leading-tight tracking-wide px-4 drop-shadow-md">
                 DAALISCHUS
               </div>
-              <div className="font-[family-name:var(--font-display)] text-[10px] uppercase tracking-[0.45em] text-white/85">
+              <div className="font-[family-name:var(--font-display)] text-[12px] uppercase tracking-[0.45em] text-white/85">
                 @itsmedaalischus
               </div>
             </div>
